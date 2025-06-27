@@ -5,6 +5,7 @@ import { URLSearchParams } from 'url';
 import { isNotEmpty } from './collection-utils.js';
 import type { OrganizationDto, SourceFileDto, UserDto, VersionDto } from '../types/dtos/index.js';
 import type { SerializableObject } from '../types/serializable-object.js';
+import { normalizeSourceFiles } from './source-file-utils.js';
 
 interface LoginOptions {
   email: string;
@@ -130,8 +131,51 @@ const getOrganization = async (options: GetOrganizationOptions) => {
     throw ApiError.fromResponseJson(error);
   }
 
-  const tokens = (await response.json()) as OrganizationDto;
-  return tokens;
+  const organization = (await response.json()) as OrganizationDto;
+  return organization;
+};
+
+type GetSourceFilesWithTokensAndMetaOptions = AuthenticatedRequestOptions & {
+  versionId: string;
+};
+
+/**
+ * Utility function that wraps multiple API calls for returning all related source files for a specific version,
+ * including tokens, meta and asset files.
+ */
+const getNormalizedSourceFilesByVersion = async (
+  options: GetSourceFilesWithTokensAndMetaOptions
+): Promise<Record<string, string>> => {
+  const { token, versionId } = options;
+
+  const { organization: organizationId } = await getCurrentUser({ token });
+  let sourceFiles: Record<string, string> = {};
+
+  const _sourceFiles = await listSourceFiles({ token, versionId });
+  sourceFiles = { ...sourceFiles, ...normalizeSourceFiles(_sourceFiles) };
+
+  const tokens = await getTokensAsJson({ versionId, token });
+  sourceFiles = { ...sourceFiles, 'tokens.json': JSON.stringify(tokens) };
+
+  const organization = await getOrganization({ token, id: organizationId });
+  sourceFiles = {
+    ...sourceFiles,
+    'meta.json': JSON.stringify({
+      meta: {
+        $type: 'meta',
+        $value: {
+          namespace: organization.namespace,
+          prefix: organization.prefix,
+          npm: {
+            org: organization.name.toLowerCase(),
+            packageSuffix: organization.namespace.toLowerCase(),
+          },
+        },
+      },
+    }),
+  };
+
+  return sourceFiles;
 };
 
 type PushSourceFilesOptions = AuthenticatedRequestOptions & {
@@ -226,6 +270,7 @@ const getAuthorizationHeader = (token: string) => ({ Authorization: `Bearer ${to
 
 export {
   getCurrentUser,
+  getNormalizedSourceFilesByVersion,
   getOrganization,
   getTokensAsJson,
   listSourceFiles,

@@ -7,14 +7,14 @@ import {
   isVersionId,
 } from '../utils/version-utils.js';
 import { select } from '@inquirer/prompts';
-import { getOrganization, getTokensAsJson, listSourceFiles, listVersions } from '../utils/api.js';
+import { getNormalizedSourceFilesByVersion, listVersions } from '../utils/api.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { isEmpty } from 'lodash-es';
 import { constructive, destructive, primary } from '../utils/colorize.js';
 import { BaseCommand } from '../utils/base-command.js';
 import path from 'node:path';
 import { cwd } from 'node:process';
-import { buildPullStatusTable, normalizeSourceFiles } from '../utils/source-file-utils.js';
+import { buildPullStatusTable } from '../utils/source-file-utils.js';
 // @ts-expect-error
 import pager from 'node-pager';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -81,34 +81,12 @@ class Pull extends BaseCommand {
       this.error(destructive(`Version '${semanticVersion ?? versionId}' not found.`));
     }
 
-    const _sourceFiles = await listSourceFiles({ token, versionId: version._id });
-    let sourceFiles = normalizeSourceFiles(_sourceFiles);
-    if (isEmpty(_sourceFiles)) {
+    const sourceFiles = await getNormalizedSourceFilesByVersion({ token, versionId: version._id });
+    if (!Object.keys(sourceFiles).some((path) => path.endsWith('.tsx'))) {
       this.error(
         `No source files were found for '${getVersionDisplayName(version)}'. If you think this is an error, contact us at help@designbase.com for assistance.`
       );
     }
-
-    const tokens = await getTokensAsJson({ versionId: version._id, token });
-    sourceFiles = { ...sourceFiles, 'tokens.json': JSON.stringify(tokens) };
-
-    const organization = await getOrganization({ token, id: organizationId });
-    sourceFiles = {
-      ...sourceFiles,
-      'meta.json': JSON.stringify({
-        meta: {
-          $type: 'meta',
-          $value: {
-            namespace: organization.namespace,
-            prefix: organization.prefix,
-            npm: {
-              org: organization.name.toLowerCase(),
-              packageSuffix: organization.namespace.toLowerCase(),
-            },
-          },
-        },
-      }),
-    };
 
     const colorizedFileCount = primary(Object.keys(sourceFiles).length);
     const colorizedDirectory = primary(directory);
