@@ -21,6 +21,8 @@ const config = defineConfig([
     ignores: ['**/*.test.ts'],
     plugins: { '@stylistic': stylistic, '@typescript-eslint': typescriptEslint.plugin, collation },
     rules: {
+      'curly': 'error',
+      'no-var': 'error',
       '@stylistic/padding-line-between-statements': [
         'error',
         {
