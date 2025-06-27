@@ -1,8 +1,0 @@
-:host {
-  display: inline-flex;
-  height: 100%;
-
-  .br-sidebar-toggle[size][shape] {
-    --button-padding: 0px;
-  }
-}

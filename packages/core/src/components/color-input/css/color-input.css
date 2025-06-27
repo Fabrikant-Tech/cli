@@ -1,7 +1,0 @@
-@import url('../../input/css/input.css');
-
-:host {
-  br-color-preview {
-    margin-right: var(--input-icon-margin);
-  }
-}

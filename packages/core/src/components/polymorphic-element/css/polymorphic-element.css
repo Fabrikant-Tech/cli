@@ -1,7 +1,0 @@
-@import url('../../../global/css/reset.css');
-
-:host {
-  > * {
-    box-sizing: border-box;
-  }
-}

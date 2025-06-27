@@ -1,3 +1,0 @@
-```jsx live
-<BrDatePicker></BrDatePicker>
-```

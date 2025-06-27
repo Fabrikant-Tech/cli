@@ -1,8 +1,0 @@
-:host([size]) {
-  pointer-events: none;
-  br-separator {
-    pointer-events: none;
-    margin-top: var(--popover-element-padding);
-    margin-bottom: var(--popover-element-padding);
-  }
-}

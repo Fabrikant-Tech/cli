@@ -1,9 +1,0 @@
-:host {
-  display: contents;
-}
-
-:host([minimized]:not([minimized='false'])) {
-  ::slotted(*:not([slot='left-icon'])) {
-    display: none;
-  }
-}
