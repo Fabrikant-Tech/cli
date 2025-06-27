@@ -19,7 +19,6 @@ import { buildPullStatusTable } from '../utils/source-file-utils.js';
 // @ts-expect-error
 import pager from 'node-pager';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { action } from '@oclif/core/ux';
 import type { SourceFileDto } from '../types/dtos/source-file-dto.js';
 
 class Pull extends BaseCommand {
@@ -57,10 +56,13 @@ class Pull extends BaseCommand {
       isNotEmpty(flags.version) && isVersionId(flags.version) ? flags.version : undefined;
 
     if (isEmpty(semanticVersion) && isEmpty(versionId)) {
-      const choices = versions.map((version) => ({
-        name: getVersionDisplayName(version),
-        value: version._id,
-      }));
+      const choices = versions.map((version) => {
+        return {
+          name: getVersionDisplayName(version),
+          description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
+          value: version._id,
+        };
+      });
 
       versionId = await select({
         message: 'Select a version to pull design system files from',
