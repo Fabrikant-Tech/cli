@@ -2,8 +2,11 @@ import { Flags } from '@oclif/core';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
 import { listVersions, pushSourceFiles } from '../utils/api.js';
 import { BaseCommand } from '../utils/base-command.js';
-import { isVersionId } from '../utils/version-utils.js';
+import { getVersionDisplayName, isVersionId } from '../utils/version-utils.js';
 import { destructive, primary } from '../utils/colorize.js';
+import { isNotEmpty } from '../utils/collection-utils.js';
+import { isEmpty } from 'lodash-es';
+import { select } from '@inquirer/prompts';
 
 class Push extends BaseCommand {
   static args = {};
@@ -14,30 +17,52 @@ class Push extends BaseCommand {
       char: 'v',
       description:
         'Id to push files to. For example: 66461c33e633cbb0adf030ab. Published version numbers are not accepted because published versions cannot be modified.',
-      required: true,
     }),
   };
 
   async run(): Promise<void> {
     const token = await getCredentialsOrThrow();
     const { flags } = await this.parse(Push);
-    const { versionId } = flags;
-    if (versionId === undefined || !isVersionId(versionId)) {
+    let versionId = flags.versionId;
+    if (isNotEmpty(versionId) && !isVersionId(versionId)) {
       this.error(
         destructive(
-          `versionId is missing or invalid. Ids are 24 characters long, such as ${primary('66461c33e633cbb0adf030ab')}. The id of your version can be retrieved by running the ${primary('designbase pull')} command.`
+          `versionId is invalid. Ids are 24 characters long, such as ${primary('66461c33e633cbb0adf030ab')}. The id of your version can be retrieved by running the ${primary('designbase pull')} command.`
         )
       );
     }
 
     const versions = await listVersions({ token });
+
+    if (isEmpty(versionId)) {
+      const choices = versions
+        .filter(
+          (version) =>
+            version.publish_status !== 'in_progress' &&
+            version.publish_status !== 'queued' &&
+            version.publish_status !== 'published'
+        )
+        .map((version) => {
+          return {
+            name: getVersionDisplayName(version),
+            description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
+            value: version._id,
+          };
+        });
+
+      versionId = await select({
+        message: 'Select a version to push design system files to',
+        choices,
+      });
+    }
+
     const version = versions.find((version) => version._id === versionId);
     if (version === undefined) {
       this.error(destructive(`Version '${versionId}' not found.`));
     }
 
     const result = await pushSourceFiles({
-      versionId,
+      versionId: version._id,
       token,
       sourceFiles: [{ path: 'turbo.json', content: JSON.stringify({}) }],
     });
