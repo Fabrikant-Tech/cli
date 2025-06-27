@@ -38,7 +38,7 @@ type GetCurrentUserOptions = AuthenticatedRequestOptions;
 
 const getCurrentUser = async (options: GetCurrentUserOptions) => {
   const { token } = options;
-  const response = await get('/users/me', { headers: getBearerTokenHeader(token) });
+  const response = await get('/users/me', { headers: getAuthorizationHeader(token) });
 
   if (!response.ok) {
     const error = await response.json();
@@ -54,7 +54,7 @@ type ListVersionsOptions = AuthenticatedRequestOptions;
 const listVersions = async (options: ListVersionsOptions): Promise<VersionDto[]> => {
   const { token } = options;
   const response = await get(`/system/versions`, {
-    headers: getBearerTokenHeader(token),
+    headers: getAuthorizationHeader(token),
     query: {
       includeEditorFields: false.toString(),
     },
@@ -76,7 +76,7 @@ type ListSourceFilesOptions = AuthenticatedRequestOptions & {
 const listSourceFiles = async (options: ListSourceFilesOptions): Promise<SourceFileDto[]> => {
   const { token, versionId } = options;
   const response = await get('/source-files', {
-    headers: getBearerTokenHeader(token),
+    headers: getAuthorizationHeader(token),
     query: {
       versionId,
     },
@@ -91,19 +91,71 @@ const listSourceFiles = async (options: ListSourceFilesOptions): Promise<SourceF
   return sourceFiles;
 };
 
+type PushSourceFilesOptions = AuthenticatedRequestOptions & {
+  /**
+   * Whether the `tokens.json` file should be accepted & persisted as `Token` entities. Most of the time,
+   * tokens will be managed in the UI by a designer, but this can be a useful escape-hatch for bulk-updating
+   * tokens.
+   * @default false
+   */
+  acceptTokensJson?: boolean;
+
+  /**
+   * Whether any file paths that do not exist in the input should be deleted.
+   * @default false
+   */
+  deletePathsNotSpecified?: boolean;
+
+  /**
+   * Collection of source files being pushed
+   */
+  sourceFiles: Array<Pick<SourceFileDto, 'content' | 'path'>>;
+
+  /**
+   * Id of the version to upsert source files for.
+   */
+  versionId: string;
+};
+
+const pushSourceFiles = async (options: PushSourceFilesOptions) => {
+  const { token, versionId, sourceFiles } = options;
+  const body = new FormData();
+  body.append('versionId', versionId);
+  const sourceFilesFile = new File([JSON.stringify(sourceFiles)], 'source-files.json');
+  body.append('sourceFiles', sourceFilesFile);
+  const response = await post('/source-files/push', {
+    headers: getAuthorizationHeader(token),
+    body,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw ApiError.fromResponseJson(error);
+  }
+
+  const result = await response.json();
+  return result;
+};
+
 interface PostOptions extends Omit<RequestInit, 'body'> {
   headers?: Record<string, string>;
-  body: Record<string, unknown>;
+  body: Record<string, unknown> | FormData;
   query?: Record<string, string>;
 }
 
 const post = async (path: string, options: PostOptions): Promise<Response> => {
-  const { headers, body, query } = options;
+  const { query } = options;
   const url = getApiUrl(path, query);
+  let headers = { ...options.headers };
+  if (!(options.body instanceof FormData)) {
+    headers = { ...JSON_CONTENT_TYPE_HEADER };
+  }
+
+  const body = options.body instanceof FormData ? options.body : JSON.stringify(options.body);
   return fetch(url, {
     method: 'POST',
-    headers: { ...JSON_CONTENT_TYPE_HEADER, ...headers },
-    body: JSON.stringify(body),
+    headers,
+    body,
   });
 };
 
@@ -127,7 +179,7 @@ const getApiUrl = (path: string, query?: Record<string, string>): string => {
   return `${API_BASE_URL}${_path}${isNotEmpty(queryString) ? `?${queryString}` : ''}`;
 };
 
-const getBearerTokenHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
+const getAuthorizationHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
 
 export type { UserDto, VersionDto };
-export { getCurrentUser, listSourceFiles, listVersions, login };
+export { getCurrentUser, listSourceFiles, listVersions, login, pushSourceFiles };
