@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { ApiError } from './errors.js';
 import { URLSearchParams } from 'url';
 import { isNotEmpty } from './collection-utils.js';
-import type { SourceFileDto, UserDto, VersionDto } from '../types/dtos/index.js';
+import type { OrganizationDto, SourceFileDto, UserDto, VersionDto } from '../types/dtos/index.js';
 import type { SerializableObject } from '../types/serializable-object.js';
 
 interface LoginOptions {
@@ -114,6 +114,26 @@ const getTokensAsJson = async (options: GetTokensAsJsonOptions): Promise<Seriali
   return tokens;
 };
 
+type GetOrganizationOptions = AuthenticatedRequestOptions & {
+  id: string;
+};
+
+const getOrganization = async (options: GetOrganizationOptions) => {
+  const { token, id } = options;
+
+  const response = await get(`users/organizations/${id}`, {
+    headers: getAuthorizationHeader(token),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw ApiError.fromResponseJson(error);
+  }
+
+  const tokens = (await response.json()) as OrganizationDto;
+  return tokens;
+};
+
 type PushSourceFilesOptions = AuthenticatedRequestOptions & {
   /**
    * Whether the `tokens.json` file should be accepted & persisted as `Token` entities. Most of the time,
@@ -204,5 +224,12 @@ const getApiUrl = (path: string, query?: Record<string, string>): string => {
 
 const getAuthorizationHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
 
-export type { UserDto, VersionDto };
-export { getCurrentUser, getTokensAsJson, listSourceFiles, listVersions, login, pushSourceFiles };
+export {
+  getCurrentUser,
+  getOrganization,
+  getTokensAsJson,
+  listSourceFiles,
+  listVersions,
+  login,
+  pushSourceFiles,
+};

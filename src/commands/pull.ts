@@ -7,8 +7,7 @@ import {
   isVersionId,
 } from '../utils/version-utils.js';
 import { select } from '@inquirer/prompts';
-import type { VersionDto } from '../utils/api.js';
-import { getTokensAsJson, listSourceFiles, listVersions } from '../utils/api.js';
+import { getOrganization, getTokensAsJson, listSourceFiles, listVersions } from '../utils/api.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { isEmpty } from 'lodash-es';
 import { constructive, destructive, primary } from '../utils/colorize.js';
@@ -19,7 +18,7 @@ import { buildPullStatusTable, normalizeSourceFiles } from '../utils/source-file
 // @ts-expect-error
 import pager from 'node-pager';
 import { mkdir, writeFile } from 'node:fs/promises';
-import type { SourceFileDto } from '../types/dtos/source-file-dto.js';
+import type { VersionDto } from '../types/index.js';
 
 class Pull extends BaseCommand {
   static args = {};
@@ -43,7 +42,7 @@ class Pull extends BaseCommand {
   };
 
   async run(): Promise<void> {
-    const token = await getCredentialsOrThrow();
+    const { token, organization: organizationId } = await getCredentialsOrThrow();
     const { flags } = await this.parse(Pull);
     const { force } = flags;
     const directory = path.resolve(cwd(), flags.directory);
@@ -92,6 +91,24 @@ class Pull extends BaseCommand {
 
     const tokens = await getTokensAsJson({ versionId: version._id, token });
     sourceFiles = { ...sourceFiles, 'tokens.json': JSON.stringify(tokens) };
+
+    const organization = await getOrganization({ token, id: organizationId });
+    sourceFiles = {
+      ...sourceFiles,
+      'meta.json': JSON.stringify({
+        meta: {
+          $type: 'meta',
+          $value: {
+            namespace: organization.namespace,
+            prefix: organization.prefix,
+            npm: {
+              org: organization.name.toLowerCase(),
+              packageSuffix: organization.namespace.toLowerCase(),
+            },
+          },
+        },
+      }),
+    };
 
     const colorizedFileCount = primary(Object.keys(sourceFiles).length);
     const colorizedDirectory = primary(directory);

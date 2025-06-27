@@ -1,6 +1,6 @@
 import { valid, clean } from 'semver';
-import type { VersionDto } from './api.js';
 import { isNotEmpty } from './collection-utils.js';
+import type { VersionDto } from '../types/index.js';
 
 /**
  * Cleans the semantic version. Assumes the input has already been validated with `isSemver`.

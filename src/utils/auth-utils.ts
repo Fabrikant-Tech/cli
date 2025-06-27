@@ -4,6 +4,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { primary } from './colorize.js';
 import { getCurrentUser } from './api.js';
 import { isApiError } from './errors.js';
+import type { UserDto } from '../types/index.js';
 
 const credentialsFilePath = path.join(os.homedir(), '.config', 'designbase', 'credentials');
 
@@ -21,7 +22,7 @@ const readCredentialsFile = async (): Promise<string | undefined> => {
   }
 };
 
-const getCredentialsOrThrow = async (): Promise<string> => {
+const getCredentialsOrThrow = async (): Promise<Omit<UserDto, 'token'> & { token: string }> => {
   const token = await readCredentialsFile();
   if (token === undefined) {
     throw new Error(
@@ -30,7 +31,8 @@ const getCredentialsOrThrow = async (): Promise<string> => {
   }
 
   try {
-    await getCurrentUser({ token });
+    const user = await getCurrentUser({ token });
+    return { ...user, token };
   } catch (error) {
     if (isApiError(error)) {
       throw error;
@@ -40,8 +42,6 @@ const getCredentialsOrThrow = async (): Promise<string> => {
       `Unable to verify authentication status. Run ${primary('designbase login')} to re-authenticate, or contact us at help@designbase.com if the problem persists.`
     );
   }
-
-  return token;
 };
 
 export { getCredentialsOrThrow, readCredentialsFile, writeCredentialsFile };

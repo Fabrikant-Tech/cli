@@ -25,7 +25,7 @@ class Push extends BaseCommand {
   };
 
   async run(): Promise<void> {
-    const token = await getCredentialsOrThrow();
+    const { token } = await getCredentialsOrThrow();
     const { flags } = await this.parse(Push);
     let versionId = flags.versionId;
     if (isNotEmpty(versionId) && !isVersionId(versionId)) {
