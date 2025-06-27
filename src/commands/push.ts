@@ -40,7 +40,7 @@ class Push extends BaseCommand {
 
     if (isEmpty(versionId)) {
       const choices = versions
-        // .filter((version) => !isVersionPublishingOrPublished(version))
+        .filter((version) => !isVersionPublishingOrPublished(version))
         .map((version) => {
           return {
             name: getVersionDisplayName(version),
