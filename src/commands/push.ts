@@ -2,7 +2,11 @@ import { Flags } from '@oclif/core';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
 import { listVersions, pushSourceFiles } from '../utils/api.js';
 import { BaseCommand } from '../utils/base-command.js';
-import { getVersionDisplayName, isVersionId } from '../utils/version-utils.js';
+import {
+  getVersionDisplayName,
+  isVersionId,
+  isVersionPublishingOrPublished,
+} from '../utils/version-utils.js';
 import { destructive, primary } from '../utils/colorize.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { isEmpty } from 'lodash-es';
@@ -36,12 +40,7 @@ class Push extends BaseCommand {
 
     if (isEmpty(versionId)) {
       const choices = versions
-        .filter(
-          (version) =>
-            version.publish_status !== 'in_progress' &&
-            version.publish_status !== 'queued' &&
-            version.publish_status !== 'published'
-        )
+        // .filter((version) => !isVersionPublishingOrPublished(version))
         .map((version) => {
           return {
             name: getVersionDisplayName(version),
@@ -59,6 +58,11 @@ class Push extends BaseCommand {
     const version = versions.find((version) => version._id === versionId);
     if (version === undefined) {
       this.error(destructive(`Version '${versionId}' not found.`));
+    }
+
+    if (isVersionPublishingOrPublished(version)) {
+      const status = version.publish_status === 'published' ? 'published' : 'publishing';
+      this.error(destructive(`Version '${version._id}' is ${status} and cannot be modified.`));
     }
 
     const result = await pushSourceFiles({

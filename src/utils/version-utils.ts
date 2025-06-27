@@ -17,4 +17,16 @@ const isVersionId = (version: string) => !isSemver(version) && version.length ==
 const getVersionDisplayName = (version: VersionDto): string =>
   isNotEmpty(version.publish_version) ? version.publish_version : `Draft ${version.number}`;
 
-export { cleanSemver, getVersionDisplayName, isSemver, isVersionId };
+const isVersionPublishingOrPublished = (version: VersionDto) =>
+  isNotEmpty(version.published_at) ||
+  version.publish_status === 'in_progress' ||
+  version.publish_status === 'queued' ||
+  version.publish_status === 'published';
+
+export {
+  cleanSemver,
+  getVersionDisplayName,
+  isSemver,
+  isVersionId,
+  isVersionPublishingOrPublished,
+};
