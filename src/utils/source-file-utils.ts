@@ -1,15 +1,13 @@
-import { readdir } from 'node:fs/promises';
 import { globby } from 'globby';
 import type { SourceFileDto } from '../types/dtos/source-file-dto.js';
 import type { Header } from 'tty-table';
 import Table from 'tty-table';
 import { sortBy } from 'lodash-es';
 import { constructive, warning } from './colorize.js';
-import path from 'node:path';
 
 const buildPullStatusTable = async (
   targetDirectory: string,
-  sourceFiles: SourceFileDto[]
+  sourceFiles: Record<string, string>
 ): Promise<string> => {
   const existingPaths: Record<string, string> = (
     await globby(['**/*', '!node_modules', '!dist', '!build'], {
@@ -22,7 +20,7 @@ const buildPullStatusTable = async (
     { value: 'Status', align: 'center' },
   ];
 
-  const sortedSourceFilePaths = sortBy(sourceFiles.map((sourceFile) => sourceFile.path));
+  const sortedSourceFilePaths = sortBy(Object.keys(sourceFiles));
   const table = Table(
     headers,
     sortedSourceFilePaths.map((sourceFilePath) => {
@@ -35,4 +33,12 @@ const buildPullStatusTable = async (
   return table;
 };
 
-export { buildPullStatusTable };
+const normalizeSourceFiles = (
+  sourceFiles: Array<Pick<SourceFileDto, 'path' | 'content'>>
+): Record<string, string> =>
+  sourceFiles.reduce(
+    (accumulated, sourceFile) => ({ ...accumulated, [sourceFile.path]: sourceFile.content ?? '' }),
+    {}
+  );
+
+export { buildPullStatusTable, normalizeSourceFiles };

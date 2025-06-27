@@ -8,14 +8,14 @@ import {
 } from '../utils/version-utils.js';
 import { select } from '@inquirer/prompts';
 import type { VersionDto } from '../utils/api.js';
-import { listSourceFiles, listVersions } from '../utils/api.js';
+import { getTokensAsJson, listSourceFiles, listVersions } from '../utils/api.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { isEmpty } from 'lodash-es';
 import { constructive, destructive, primary } from '../utils/colorize.js';
 import { BaseCommand } from '../utils/base-command.js';
 import path from 'node:path';
 import { cwd } from 'node:process';
-import { buildPullStatusTable } from '../utils/source-file-utils.js';
+import { buildPullStatusTable, normalizeSourceFiles } from '../utils/source-file-utils.js';
 // @ts-expect-error
 import pager from 'node-pager';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -82,14 +82,18 @@ class Pull extends BaseCommand {
       this.error(destructive(`Version '${semanticVersion ?? versionId}' not found.`));
     }
 
-    const sourceFiles = await listSourceFiles({ token, versionId: version._id });
-    if (isEmpty(sourceFiles)) {
+    const _sourceFiles = await listSourceFiles({ token, versionId: version._id });
+    let sourceFiles = normalizeSourceFiles(_sourceFiles);
+    if (isEmpty(_sourceFiles)) {
       this.error(
         `No source files were found for '${getVersionDisplayName(version)}'. If you think this is an error, contact us at help@designbase.com for assistance.`
       );
     }
 
-    const colorizedFileCount = primary(sourceFiles.length);
+    const tokens = await getTokensAsJson({ versionId: version._id, token });
+    sourceFiles = { ...sourceFiles, 'tokens.json': JSON.stringify(tokens) };
+
+    const colorizedFileCount = primary(Object.keys(sourceFiles).length);
     const colorizedDirectory = primary(directory);
 
     if (force) {
@@ -138,13 +142,16 @@ class Pull extends BaseCommand {
   }
 }
 
-const writeSourceFiles = async (directory: string, sourceFiles: SourceFileDto[]): Promise<void> => {
+const writeSourceFiles = async (
+  directory: string,
+  sourceFiles: Record<string, string>
+): Promise<void> => {
   await mkdir(directory, { recursive: true });
   await Promise.all(
-    sourceFiles.map(async (sourceFile) => {
-      const sourceFilePath = path.resolve(directory, sourceFile.path);
+    Object.entries(sourceFiles).map(async ([_path, content]) => {
+      const sourceFilePath = path.resolve(directory, _path);
       await mkdir(path.dirname(sourceFilePath), { recursive: true });
-      await writeFile(sourceFilePath, sourceFile.content ?? '', 'utf-8');
+      await writeFile(sourceFilePath, content ?? '', 'utf-8');
     })
   );
 };

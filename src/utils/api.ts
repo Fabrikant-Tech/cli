@@ -4,6 +4,7 @@ import { ApiError } from './errors.js';
 import { URLSearchParams } from 'url';
 import { isNotEmpty } from './collection-utils.js';
 import type { SourceFileDto, UserDto, VersionDto } from '../types/dtos/index.js';
+import type { SerializableObject } from '../types/serializable-object.js';
 
 interface LoginOptions {
   email: string;
@@ -89,6 +90,28 @@ const listSourceFiles = async (options: ListSourceFilesOptions): Promise<SourceF
 
   const sourceFiles = (await response.json()) as SourceFileDto[];
   return sourceFiles;
+};
+
+type GetTokensAsJsonOptions = AuthenticatedRequestOptions & {
+  versionId: string;
+};
+
+const getTokensAsJson = async (options: GetTokensAsJsonOptions): Promise<SerializableObject> => {
+  const { versionId, token } = options;
+  const response = await get('/tokens/json', {
+    headers: getAuthorizationHeader(token),
+    query: {
+      versionId,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw ApiError.fromResponseJson(error);
+  }
+
+  const tokens = (await response.json()) as SerializableObject;
+  return tokens;
 };
 
 type PushSourceFilesOptions = AuthenticatedRequestOptions & {
@@ -182,4 +205,4 @@ const getApiUrl = (path: string, query?: Record<string, string>): string => {
 const getAuthorizationHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
 
 export type { UserDto, VersionDto };
-export { getCurrentUser, listSourceFiles, listVersions, login, pushSourceFiles };
+export { getCurrentUser, getTokensAsJson, listSourceFiles, listVersions, login, pushSourceFiles };
