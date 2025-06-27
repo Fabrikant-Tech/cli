@@ -1,0 +1,7 @@
+:host {
+  display: contents;
+
+  .br-audio-capture-target {
+    display: contents;
+  }
+}

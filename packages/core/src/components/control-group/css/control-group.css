@@ -1,0 +1,297 @@
+@import url('../../../global/css/reset.css');
+
+:host {
+  display: inline-flex;
+
+  ::slotted(*:focus) {
+    z-index: 1;
+  }
+
+  ::slotted(*) {
+    --tag-input-border-top-left-radius: var(--fileinput-border-top-left-radius);
+    --tag-input-border-bottom-left-radius: var(--fileinput-border-bottom-left-radius);
+    --tag-input-border-top-right-radius: var(--fileinput-border-top-right-radius);
+    --tag-input-border-bottom-right-radius: var(--fileinput-border-bottom-right-radius);
+  }
+}
+
+:host([full-width]:not([full-width='false'])) {
+  width: 100%;
+}
+
+:host([full-height]:not([full-height='false'])) {
+  height: 100%;
+}
+
+:host([width='100%']) {
+  width: 100%;
+}
+
+:host([height='100%']) {
+  height: 100%;
+}
+
+:host([direction='vertical']) {
+  flex-direction: column;
+
+  ::slotted(br-multi-select:first-child) {
+    --multi-select-border-bottom-left-radius: 0px;
+    --multi-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-multi-select:not(:first-child):not(:last-child)) {
+    --multi-select-border-top-left-radius: 0px;
+    --multi-select-border-bottom-left-radius: 0px;
+    --multi-select-border-top-right-radius: 0px;
+    --multi-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-multi-select:last-child) {
+    --multi-select-border-top-left-radius: 0px;
+    --multi-select-border-top-right-radius: 0px;
+  }
+
+  ::slotted(br-combo-select:first-child) {
+    --combo-select-border-bottom-left-radius: 0px;
+    --combo-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-combo-select:not(:first-child):not(:last-child)) {
+    --combo-select-border-top-left-radius: 0px;
+    --combo-select-border-bottom-left-radius: 0px;
+    --combo-select-border-top-right-radius: 0px;
+    --combo-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-combo-select:last-child) {
+    --combo-select-border-top-left-radius: 0px;
+    --combo-select-border-top-right-radius: 0px;
+  }
+
+  ::slotted(br-single-select:first-child) {
+    --single-select-border-bottom-left-radius: 0px;
+    --single-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-single-select:first-child) {
+    --single-select-border-bottom-left-radius: 0px;
+    --single-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-single-select:not(:first-child):not(:last-child)) {
+    --single-select-border-top-left-radius: 0px;
+    --single-select-border-bottom-left-radius: 0px;
+    --single-select-border-top-right-radius: 0px;
+    --single-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-single-select:last-child) {
+    --single-select-border-top-left-radius: 0px;
+    --single-select-border-top-right-radius: 0px;
+  }
+
+  ::slotted(br-single-select:first-child) {
+    --single-select-border-bottom-left-radius: 0px;
+    --single-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-button:not(:first-child):not(:last-child)) {
+    --button-border-top-left-radius: 0px;
+    --button-border-bottom-left-radius: 0px;
+    --button-border-top-right-radius: 0px;
+    --button-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-button:last-child) {
+    --button-border-top-left-radius: 0px;
+    --button-border-top-right-radius: 0px;
+  }
+
+  ::slotted(br-time-input:first-child),
+  ::slotted(br-input:first-child),
+  ::slotted(br-numeric-input:first-child) {
+    --input-border-bottom-left-radius: 0px;
+    --input-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-time-input:not(:first-child):not(:last-child)),
+  ::slotted(br-input:not(:first-child):not(:last-child)),
+  ::slotted(br-numeric-input:not(:first-child):not(:last-child)) {
+    --input-border-top-left-radius: 0px;
+    --input-border-bottom-left-radius: 0px;
+    --input-border-top-right-radius: 0px;
+    --input-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-time-input:last-child),
+  ::slotted(br-input:last-child),
+  ::slotted(br-numeric-input:last-child) {
+    --input-border-top-left-radius: 0px;
+    --input-border-top-right-radius: 0px;
+  }
+
+  ::slotted(br-tag-input:first-child) {
+    --tag-input-border-bottom-left-radius: 0px;
+    --tag-input-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-tag-input:not(:first-child):not(:last-child)) {
+    --tag-input-border-top-left-radius: 0px;
+    --tag-input-border-bottom-left-radius: 0px;
+    --tag-input-border-top-right-radius: 0px;
+    --tag-input-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-tag-input:last-child) {
+    --tag-input-border-top-left-radius: 0px;
+    --tag-input-border-top-right-radius: 0px;
+  }
+
+  ::slotted(br-file-input:first-child) {
+    --fileinput-border-bottom-left-radius: 0px;
+    --fileinput-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-file-input:not(:first-child):not(:last-child)) {
+    --fileinput-border-top-left-radius: 0px;
+    --fileinput-border-bottom-left-radius: 0px;
+    --fileinput-border-top-right-radius: 0px;
+    --fileinput-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-file-input:last-child) {
+    --fileinput-border-top-left-radius: 0px;
+    --fileinput-border-top-right-radius: 0px;
+  }
+}
+
+:host([direction='horizontal']) {
+  ::slotted(*) {
+    margin-top: auto;
+  }
+
+  ::slotted(br-multi-select:first-child) {
+    --multi-select-border-top-right-radius: 0px;
+    --multi-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-multi-select:not(:first-child):not(:last-child)) {
+    --multi-select-border-top-left-radius: 0px;
+    --multi-select-border-bottom-left-radius: 0px;
+    --multi-select-border-top-right-radius: 0px;
+    --multi-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-multi-select:last-child) {
+    --multi-select-border-top-left-radius: 0px;
+    --multi-select-border-bottom-left-radius: 0px;
+  }
+
+  ::slotted(br-combo-select:first-child) {
+    --combo-select-border-top-right-radius: 0px;
+    --combo-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-combo-select:not(:first-child):not(:last-child)) {
+    --combo-select-border-top-left-radius: 0px;
+    --combo-select-border-bottom-left-radius: 0px;
+    --combo-select-border-top-right-radius: 0px;
+    --combo-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-combo-select:last-child) {
+    --combo-select-border-top-left-radius: 0px;
+    --combo-select-border-bottom-left-radius: 0px;
+  }
+
+  ::slotted(br-single-select:first-child) {
+    --single-select-border-top-right-radius: 0px;
+    --single-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-single-select:not(:first-child):not(:last-child)) {
+    --single-select-border-top-left-radius: 0px;
+    --single-select-border-bottom-left-radius: 0px;
+    --single-select-border-top-right-radius: 0px;
+    --single-select-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-single-select:last-child) {
+    --single-select-border-top-left-radius: 0px;
+    --single-select-border-bottom-left-radius: 0px;
+  }
+
+  ::slotted(br-button:first-child) {
+    --button-border-top-right-radius: 0px;
+    --button-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-button:not(:first-child):not(:last-child)) {
+    --button-border-top-left-radius: 0px;
+    --button-border-bottom-left-radius: 0px;
+    --button-border-top-right-radius: 0px;
+    --button-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-button:last-child) {
+    --button-border-top-left-radius: 0px;
+    --button-border-bottom-left-radius: 0px;
+  }
+
+  ::slotted(br-time-input:first-child),
+  ::slotted(br-input:first-child),
+  ::slotted(br-numeric-input:first-child) {
+    --input-border-top-right-radius: 0px;
+    --input-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-time-input:not(:first-child):not(:last-child)),
+  ::slotted(br-input:not(:first-child):not(:last-child)),
+  ::slotted(br-numeric-input:not(:first-child):not(:last-child)) {
+    --input-border-top-left-radius: 0px;
+    --input-border-bottom-left-radius: 0px;
+    --input-border-top-right-radius: 0px;
+    --input-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-time-input:last-child),
+  ::slotted(br-input:last-child),
+  ::slotted(br-numeric-input:last-child) {
+    --input-border-top-left-radius: 0px;
+    --input-border-bottom-left-radius: 0px;
+  }
+
+  ::slotted(br-tag-input:first-child) {
+    --tag-input-border-top-right-radius: 0px;
+    --tag-input-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-tag-input:not(:first-child):not(:last-child)) {
+    --tag-input-border-top-left-radius: 0px;
+    --tag-input-border-bottom-left-radius: 0px;
+    --tag-input-border-top-right-radius: 0px;
+    --tag-input-border-bottom-right-radius: 0px;
+  }
+
+  ::slotted(br-tag-input:last-child) {
+    --tag-input-border-top-left-radius: 0px;
+    --tag-input-border-bottom-left-radius: 0px;
+  }
+
+  ::slotted(br-file-input:first-child) {
+    --fileinput-border-top-right-radius: 0px !important;
+    --fileinput-border-bottom-right-radius: 0px !important;
+  }
+
+  ::slotted(br-file-input:not(:first-child):not(:last-child)) {
+    --fileinput-border-top-left-radius: 0px !important;
+    --fileinput-border-bottom-left-radius: 0px !important;
+    --fileinput-border-top-right-radius: 0px !important;
+    --fileinput-border-bottom-right-radius: 0px !important;
+  }
+
+  ::slotted(br-file-input:last-child) {
+    --fileinput-border-top-left-radius: 0px !important;
+    --fileinput-border-bottom-left-radius: 0px !important;
+  }
+}

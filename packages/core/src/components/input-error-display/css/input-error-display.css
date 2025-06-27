@@ -1,0 +1,29 @@
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+
+  br-icon:not([size]),
+  ::slotted(br-icon:not([size])) {
+    --svg-icon-size: var(--error-display-icon-size);
+  }
+  font-size: var(--error-display-font-size);
+
+  .br-input-error-display-wrapper {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+
+    br-icon,
+    ::slotted(br-icon) {
+      margin-right: var(--error-display-icon-margin);
+    }
+
+    span.br-input-error-display-message {
+      --color-default-text: var(--color-destructive-500);
+    }
+  }
+
+  span.br-input-error-display-tooltip-message {
+    --color-default-text: var(--color-white);
+  }
+}

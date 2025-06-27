@@ -1,0 +1,101 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+
+  input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+:host([rounded-corners]:not([rounded-corners='false'])) {
+  border-radius: var(--tree-border-radius);
+}
+
+:host([full-width]:not([full-width='false'])) {
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+:host([full-height]:not([full-height='false'])) {
+  height: 100%;
+  min-height: 0;
+  flex-shrink: 1;
+}
+
+:host([width='100%']) {
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+:host([height='100%']) {
+  height: 100%;
+  min-height: 0;
+  flex-shrink: 1;
+}
+
+:host([width*='px']) {
+  flex-shrink: 0;
+}
+
+:host([height*='px']) {
+  flex-shrink: 0;
+}
+
+:host(:focus-visible) {
+  outline: none;
+  border: none;
+}
+
+:host([theme='Light']:active) {
+  box-shadow:
+    inset 0px 0px 0px 2px color-mix(in srgb, var(--color-primary-500) 100%, transparent),
+    inset 0px 2px calc(var(--template-shadow-blur) * 4) 0px
+      color-mix(in srgb, var(--color-neutral-900) 10%, transparent);
+}
+
+:host([theme='Dark']:active) {
+  box-shadow:
+    inset 0px 0px 0px 2px color-mix(in srgb, var(--color-primary-300) 100%, transparent),
+    inset 0px 2px calc(var(--template-shadow-blur) * 4) 0px
+      color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+
+:host([theme='Light']:focus) {
+  box-shadow:
+    inset 0px 0px 0px 2px color-mix(in srgb, var(--color-primary-500) 100%, transparent),
+    inset 0px 2px calc(var(--template-shadow-blur) * 4) 0px
+      color-mix(in srgb, var(--color-neutral-900) 10%, transparent);
+}
+
+:host([theme='Dark']:focus) {
+  box-shadow:
+    inset 0px 0px 0px 2px color-mix(in srgb, var(--color-primary-300) 100%, transparent),
+    inset 0px 2px calc(var(--template-shadow-blur) * 4) 0px
+      color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+
+:host([size='Xsmall']) {
+  --tree-border-radius: var(--actionable-element-border-radius-x-small);
+}
+
+:host([size='Small']) {
+  --tree-border-radius: var(--actionable-element-border-radius-small);
+}
+
+:host([size='Normal']) {
+  --tree-border-radius: var(--actionable-element-border-radius-normal);
+}
+
+:host([size='Large']) {
+  --tree-border-radius: var(--actionable-element-border-radius-large);
+}

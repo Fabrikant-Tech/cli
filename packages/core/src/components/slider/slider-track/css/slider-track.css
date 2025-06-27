@@ -1,0 +1,5 @@
+:host {
+  position: absolute;
+  background-color: var(--slider-track-color);
+  z-index: 1;
+}

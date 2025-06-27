@@ -1,0 +1,30 @@
+:host {
+  position: relative;
+  display: contents;
+
+  .br-graph-connector-decorator {
+    display: inline-flex;
+    position: absolute;
+    z-index: 2;
+  }
+
+  ::slotted(*) {
+    z-index: 1;
+  }
+
+  ::slotted(*[slot='middle']) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+:host([hide]:not([hide='false'])) {
+  * {
+    opacity: 0 !important;
+  }
+  ::slotted(*) {
+    opacity: 0 !important;
+  }
+}

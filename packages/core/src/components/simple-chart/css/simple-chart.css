@@ -1,0 +1,14 @@
+:host {
+  display: inline-flex;
+  width: var(--chart-width);
+  height: var(--chart-height);
+  pointer-events: none;
+}
+
+:host([width*='px']) {
+  flex-shrink: 0;
+}
+
+:host([height*='px']) {
+  flex-shrink: 0;
+}

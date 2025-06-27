@@ -1,0 +1,740 @@
+@import url('../../../global/css/reset.css');
+
+:host {
+  --transition: var(--transition-default);
+  display: inline-block;
+  position: relative;
+  max-width: 100%;
+
+  .br-input-annotation-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: stretch;
+    font-family: var(--typography-body-family);
+    font-size: var(--input-font-size);
+    font-weight: var(--input-font-weight);
+    line-height: var(--input-line-height);
+
+    ::slotted(*[slot='hint']) {
+      margin-top: var(--input-icon-margin);
+    }
+  }
+
+  .br-input-wrapper {
+    display: inline-flex;
+    position: relative;
+    flex-grow: 0;
+    flex-direction: row;
+    align-items: center;
+    font-family: var(--typography-body-family);
+    cursor: var(--cursor-text);
+    transition: var(--transition);
+    justify-content: space-around;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 1;
+  }
+
+  input {
+    margin: 0;
+    padding: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    background: none;
+    flex-shrink: 1;
+    font-family: var(--typography-body-family);
+    max-width: 100%;
+    height: 100%;
+    transition: var(--transition);
+    border: none;
+    outline: none;
+    text-overflow: ellipsis;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='date']::-webkit-inner-spin-button,
+  input[type='date']::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
+
+  input[type='datetime-local']::-webkit-inner-spin-button,
+  input[type='datetime-local']::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: none;
+  }
+}
+
+:host {
+  .br-input-wrapper.br-input-disabled {
+    cursor: var(--cursor-not-allowed);
+  }
+}
+
+:host([theme='Light']) {
+  .br-input-annotation-wrapper {
+    color: var(--color-neutral-400);
+  }
+}
+
+:host([theme='Dark']) {
+  .br-input-annotation-wrapper {
+    color: var(--color-neutral-500);
+  }
+}
+
+:host([shape][size][full-width]:not([full-width='false'])) {
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+
+  .br-input-wrapper {
+    width: 100%;
+  }
+}
+
+:host([shape][size][width='100%']) {
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+
+  .br-input-wrapper {
+    width: 100%;
+  }
+}
+
+:host {
+  .br-input-wrapper {
+    min-height: var(--input-height);
+    padding: var(--input-padding);
+    padding-top: var(--input-vertical-padding);
+    padding-bottom: var(--input-vertical-padding);
+    border-top-left-radius: var(
+      --combo-select-border-top-left-radius,
+      var(--input-border-top-left-radius)
+    );
+    border-bottom-left-radius: var(
+      --combo-select-border-bottom-left-radius,
+      var(--input-border-bottom-left-radius)
+    );
+    border-top-right-radius: var(
+      --combo-select-border-top-right-radius,
+      var(--input-border-top-right-radius)
+    );
+    border-bottom-right-radius: var(
+      --combo-select-border-bottom-right-radius,
+      var(--input-border-bottom-right-radius)
+    );
+  }
+
+  input {
+    position: absolute;
+    width: 100%;
+    flex-shrink: 1;
+    font-size: var(--input-font-size);
+    font-weight: var(--input-font-weight);
+    line-height: var(--input-line-height);
+  }
+
+  br-control-group.br-input-increment-button-group {
+    margin-left: calc(var(--input-icon-margin) / 2);
+  }
+
+  .br-input-content-resizer {
+    position: relative;
+    display: inline-flex;
+    box-sizing: border-box;
+    max-width: 100%;
+    width: 100%;
+    flex-shrink: 1;
+    word-break: break-all;
+    white-space: nowrap;
+    background-color: transparent;
+    font-family: var(--typography-body-family);
+    font-size: var(--input-font-size);
+    font-weight: var(--input-font-weight);
+    line-height: var(--input-line-height);
+    overflow: hidden;
+
+    span {
+      position: relative;
+      pointer-events: none;
+      box-sizing: border-box;
+      max-width: 100%;
+      word-break: break-all;
+    }
+
+    span > .br-input-resizer-ghost {
+      pointer-events: none;
+      opacity: 0;
+      box-sizing: border-box;
+      max-width: 100%;
+      word-break: break-all;
+    }
+  }
+
+  br-input-error-display {
+    --error-display-icon-size: var(--input-icon-size);
+    --error-display-font-size: var(--input-font-size);
+    --error-display-icon-margin: var(--input-icon-margin);
+  }
+
+  br-input-error-display[type='tooltip'],
+  br-button.br-clear-value-button {
+    margin-left: var(--input-icon-margin);
+  }
+
+  br-input-error-display[type='inline'] {
+    margin-top: var(--input-icon-margin);
+  }
+
+  ::slotted(*[slot='left-icon']) {
+    pointer-events: none;
+    margin-right: var(--input-icon-margin);
+  }
+
+  ::slotted(*[slot='right-icon']) {
+    pointer-events: none;
+    margin-left: var(--input-icon-margin);
+  }
+
+  ::slotted(*:not([size])) {
+    --svg-icon-size: var(--input-icon-size);
+  }
+
+  slot[name='left-icon'] {
+    --svg-icon-size: var(--input-icon-size);
+    margin-right: var(--input-icon-margin);
+  }
+}
+
+:host([shape='Rectangular'][size='Xsmall']) {
+  --input-height: var(--actionable-element-height-x-small);
+  --input-padding: var(--actionable-element-padding-x-small);
+  --input-border-top-left-radius: var(--actionable-element-border-radius-x-small);
+  --input-border-bottom-left-radius: var(--actionable-element-border-radius-x-small);
+  --input-border-top-right-radius: var(--actionable-element-border-radius-x-small);
+  --input-border-bottom-right-radius: var(--actionable-element-border-radius-x-small);
+  --input-font-size: var(--actionable-element-font-size-x-small);
+  --input-font-weight: var(--actionable-element-font-weight);
+  --input-line-height: var(--actionable-element-line-height);
+  --input-icon-margin: var(--actionable-element-icon-margin-x-small);
+  --input-icon-size: var(--actionable-element-icon-size-x-small);
+  --input-vertical-padding: calc((var(--input-height) - var(--input-line-height)) / 2);
+
+  br-control-group.br-input-increment-button-group {
+    height: var(--input-height);
+  }
+}
+
+:host([shape='Rectangular'][size='Small']) {
+  --input-height: var(--actionable-element-height-small);
+  --input-padding: var(--actionable-element-padding-small);
+  --input-border-top-left-radius: var(--actionable-element-border-radius-small);
+  --input-border-bottom-left-radius: var(--actionable-element-border-radius-small);
+  --input-border-top-right-radius: var(--actionable-element-border-radius-small);
+  --input-border-bottom-right-radius: var(--actionable-element-border-radius-small);
+  --input-font-size: var(--actionable-element-font-size-small);
+  --input-font-weight: var(--actionable-element-font-weight);
+  --input-line-height: var(--actionable-element-line-height);
+  --input-icon-margin: var(--actionable-element-icon-margin-small);
+  --input-icon-size: var(--actionable-element-icon-size-small);
+  --input-vertical-padding: calc((var(--input-height) - var(--input-line-height)) / 2);
+
+  br-control-group.br-input-increment-button-group {
+    height: var(--input-height);
+  }
+}
+
+:host([shape='Rectangular'][size='Normal']) {
+  --input-height: var(--actionable-element-height-normal);
+  --input-padding: var(--actionable-element-padding-normal);
+  --input-border-top-left-radius: var(--actionable-element-border-radius-normal);
+  --input-border-bottom-left-radius: var(--actionable-element-border-radius-normal);
+  --input-border-top-right-radius: var(--actionable-element-border-radius-normal);
+  --input-border-bottom-right-radius: var(--actionable-element-border-radius-normal);
+  --input-font-size: var(--actionable-element-font-size-normal);
+  --input-font-weight: var(--actionable-element-font-size);
+  --input-line-height: var(--actionable-element-line-height);
+  --input-icon-margin: var(--actionable-element-icon-margin-normal);
+  --input-icon-size: var(--actionable-element-icon-size-normal);
+  --input-vertical-padding: calc((var(--input-height) - var(--input-line-height)) / 2);
+
+  br-control-group.br-input-increment-button-group {
+    height: var(--actionable-element-height-small);
+  }
+}
+
+:host([shape='Rectangular'][size='Large']) {
+  --input-height: var(--actionable-element-height-large);
+  --input-padding: var(--actionable-element-padding-large);
+  --input-border-top-left-radius: var(--actionable-element-border-radius-large);
+  --input-border-bottom-left-radius: var(--actionable-element-border-radius-large);
+  --input-border-top-right-radius: var(--actionable-element-border-radius-large);
+  --input-border-bottom-right-radius: var(--actionable-element-border-radius-large);
+  --input-font-size: var(--actionable-element-font-size-large);
+  --input-font-weight: var(--actionable-element-font-weight);
+  --input-line-height: var(--actionable-element-line-height);
+  --input-icon-margin: var(--actionable-element-icon-margin-large);
+  --input-icon-size: var(--actionable-element-icon-size-large);
+  --input-vertical-padding: calc((var(--input-height) - var(--input-line-height)) / 2);
+
+  br-control-group.br-input-increment-button-group {
+    height: var(--actionable-element-height-normal);
+  }
+}
+
+:host {
+  .br-input-wrapper {
+    background-color: color-mix(
+      in srgb,
+      var(--input-background-color) var(--input-background-color-opacity),
+      transparent
+    );
+    background-image: var(--input-background-image);
+    opacity: var(--input-opacity);
+    box-shadow: var(--input-box-shadow);
+  }
+
+  input {
+    color: color-mix(in srgb, var(--input-color) var(--input-color-opacity), transparent);
+  }
+
+  input::placeholder {
+    color: color-mix(
+      in srgb,
+      var(--input-placeholder-color) var(--input-placeholder-color-opacity),
+      transparent
+    );
+  }
+}
+
+:host {
+  --input-box-shadow-y-offset-unit: calc(
+    var(--template-light-position-occlusion-y) * var(--template-light-position-y-direction)
+  );
+
+  --input-box-shadow-inset-light: inset 0px 0px 0px 1px
+    color-mix(
+      in srgb,
+      var(--color-neutral-900) calc(15% * max(var(--template-light-strength), 1)),
+      transparent
+    );
+  --input-box-shadow-inset-blur-light: inset 0px calc(var(--input-box-shadow-y-offset-unit) * 2)
+    calc(var(--template-shadow-blur) * 4) 0px
+    color-mix(
+      in srgb,
+      var(--color-neutral-900) calc(10% * var(--template-light-strength)),
+      transparent
+    );
+  --input-box-shadow-inset-hover-light: inset 0px 0px 0px 1px
+    color-mix(
+      in srgb,
+      var(--color-primary-500) calc(50% * max(var(--template-light-strength), 1)),
+      transparent
+    );
+  --input-box-shadow-inset-error-light: inset 0px 0px 0px 2px
+    color-mix(in srgb, var(--color-destructive-500) 100%, transparent);
+  --input-box-shadow-inset-focused-light: inset 0px 0px 0px 2px
+    color-mix(in srgb, var(--color-primary-500) 100%, transparent);
+  --input-box-shadow-inset-negated-light: inset 0px 0px 0px 0px
+    color-mix(in srgb, var(--color-primary-500) 0%, transparent);
+  --input-box-shadow-inset-blur-negated-light: inset 0px
+    calc(var(--input-box-shadow-y-offset-unit) * 2) calc(var(--template-shadow-blur) * 4) 0px
+    color-mix(in srgb, var(--color-neutral-900) 0%, transparent);
+
+  --input-box-shadow-inset-dark: inset 0px 0px 0px 1px
+    color-mix(
+      in srgb,
+      var(--color-neutral-900) calc(75% * max(var(--template-light-strength), 1)),
+      transparent
+    );
+  --input-box-shadow-inset-blur-dark: inset 0px calc(var(--input-box-shadow-y-offset-unit) * 2)
+    calc(var(--template-shadow-blur) * 4) 0px
+    color-mix(
+      in srgb,
+      var(--color-neutral-900) calc(50% * var(--template-light-strength)),
+      transparent
+    );
+  --input-box-shadow-inset-hover-dark: inset 0px 0px 0px 1px
+    color-mix(
+      in srgb,
+      var(--color-primary-400) calc(75% * max(var(--template-light-strength), 1)),
+      transparent
+    );
+  --input-box-shadow-inset-focused-dark: inset 0px 0px 0px 2px
+    color-mix(in srgb, var(--color-primary-400) 100%, transparent);
+  --input-box-shadow-inset-error-dark: inset 0px 0px 0px 2px
+    color-mix(in srgb, var(--color-destructive-500) 100%, transparent);
+}
+
+:host([fill-style='Solid'][theme='Light']) {
+  .br-input-wrapper {
+    --icon-color-1: var(--color-neutral-500);
+    --icon-color-1-opacity: 100%;
+    --icon-color-2: var(--color-neutral-500);
+    --icon-color-2-opacity: 75%;
+
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-black);
+    --input-placeholder-color-opacity: 50%;
+    --input-box-shadow: var(--input-box-shadow-inset-light),
+      var(--input-box-shadow-inset-blur-light);
+  }
+}
+
+:host([fill-style='Solid'][theme='Light']) {
+  .br-input-wrapper:hover {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: var(--input-box-shadow-inset-hover-light),
+      var(--input-box-shadow-inset-blur-light);
+  }
+
+  input::selection {
+    background-color: color-mix(in srgb, var(--color-primary-400) 25%, transparent);
+  }
+}
+
+:host([fill-style='Solid'][theme='Light']) {
+  .br-input-wrapper.br-input-invalid.br-input-was-touched {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: var(--input-box-shadow-inset-error-light),
+      var(--input-box-shadow-inset-blur-light);
+  }
+}
+
+:host([fill-style='Solid'][theme='Light']) {
+  .br-input-wrapper.br-input-focused,
+  .br-input-wrapper.br-input-focused.br-input-invalid.br-input-was-touched {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: var(--input-box-shadow-inset-focused-light),
+      var(--input-box-shadow-inset-blur-light);
+  }
+}
+
+:host([fill-style='Solid'][theme='Light']) {
+  .br-input-wrapper.br-input-disabled {
+    --input-background-color: var(--color-black);
+    --input-background-color-opacity: 10%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 50%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-black);
+    --input-placeholder-color-opacity: 25%;
+    --input-box-shadow: var(--input-box-shadow-inset-negated-light),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Solid'][theme='Light']) {
+  .br-input-wrapper.br-input-readonly {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: var(--input-box-shadow-inset-light),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Solid'][theme='Dark']) {
+  .br-input-wrapper {
+    --icon-color-1: var(--color-neutral-300);
+    --icon-color-1-opacity: 100%;
+    --icon-color-2: var(--color-neutral-300);
+    --icon-color-2-opacity: 75%;
+
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-white);
+    --input-placeholder-color-opacity: 25%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-dark), var(--input-box-shadow-inset-blur-dark);
+  }
+
+  input::selection {
+    background-color: color-mix(in srgb, var(--color-primary-300) 45%, transparent);
+  }
+}
+
+:host([fill-style='Solid'][theme='Dark']) {
+  .br-input-wrapper:hover {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-hover-dark), var(--input-box-shadow-inset-blur-dark);
+  }
+}
+
+:host([fill-style='Solid'][theme='Dark']) {
+  .br-input-wrapper.br-input-invalid.br-input-was-touched {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-error-dark), var(--input-box-shadow-inset-blur-dark);
+  }
+}
+
+:host([fill-style='Solid'][theme='Dark']) {
+  .br-input-wrapper.br-input-focused,
+  .br-input-wrapper.br-input-focused.br-input-invalid.br-input-was-touched {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-focused-dark), var(--input-box-shadow-inset-blur-dark);
+  }
+}
+
+:host([fill-style='Solid'][theme='Dark']) {
+  .br-input-wrapper.br-input-disabled {
+    --input-background-color: var(--color-white);
+    --input-background-color-opacity: 10%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 50%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-white);
+    --input-placeholder-color-opacity: 25%;
+    --input-box-shadow: var(--input-box-shadow-inset-negated-light),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Solid'][theme='Dark']) {
+  .br-input-wrapper.br-input-readonly {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-dark), var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Light']) {
+  .br-input-wrapper {
+    --icon-color-1: var(--color-neutral-500);
+    --icon-color-1-opacity: 100%;
+    --icon-color-2: var(--color-neutral-500);
+    --icon-color-2-opacity: 75%;
+
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 0%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-black);
+    --input-placeholder-color-opacity: 50%;
+    --input-box-shadow: inset 0px 0px 0px 0px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Light']) {
+  .br-input-wrapper:hover {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 0%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: var(--input-box-shadow-inset-hover-light),
+      var(--input-box-shadow-inset-blur-light);
+  }
+
+  input::selection {
+    background-color: color-mix(in srgb, var(--color-primary-400) 25%, transparent);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Light']) {
+  .br-input-wrapper.br-input-invalid.br-input-was-touched {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 0%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: var(--input-box-shadow-inset-error-light),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Light']) {
+  .br-input-wrapper.br-input-focused,
+  .br-input-wrapper.br-input-focused.br-input-invalid.br-input-was-touched {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: var(--input-box-shadow-inset-focused-light),
+      var(--input-box-shadow-inset-blur-light);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Light']) {
+  .br-input-wrapper.br-input-disabled {
+    --input-background-color: var(--color-black);
+    --input-background-color-opacity: 10%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 50%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-black);
+    --input-placeholder-color-opacity: 25%;
+    --input-box-shadow: var(--input-box-shadow-inset-negated-light),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Light']) {
+  .br-input-wrapper.br-input-readonly {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-black);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: var(--input-box-shadow-inset-light),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Dark']) {
+  .br-input-wrapper {
+    --icon-color-1: var(--color-neutral-300);
+    --icon-color-1-opacity: 100%;
+    --icon-color-2: var(--color-neutral-300);
+    --icon-color-2-opacity: 75%;
+
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 0%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-white);
+    --input-placeholder-color-opacity: 25%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 0%, transparent),
+      inset 0px 0px 0px 0px color-mix(in srgb, var(--color-neutral-900) 75%, transparent),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+
+  input::selection {
+    background-color: color-mix(in srgb, var(--color-primary-300) 45%, transparent);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Dark']) {
+  .br-input-wrapper:hover {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 0%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-hover-dark), var(--input-box-shadow-inset-blur-dark);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Dark']) {
+  .br-input-wrapper.br-input-invalid.br-input-was-touched {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-error-dark), var(--input-box-shadow-inset-blur-dark);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Dark']) {
+  .br-input-wrapper.br-input-focused,
+  .br-input-wrapper.br-input-focused.br-input-invalid.br-input-was-touched {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-focused-dark), var(--input-box-shadow-inset-blur-dark);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Dark']) {
+  .br-input-wrapper.br-input-disabled {
+    --input-background-color: var(--color-white);
+    --input-background-color-opacity: 10%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 50%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-white);
+    --input-placeholder-color-opacity: 25%;
+    --input-box-shadow: var(--input-box-shadow-inset-negated-light),
+      var(--input-box-shadow-inset-blur-negated-light);
+  }
+}
+
+:host([fill-style='Ghost'][theme='Dark']) {
+  .br-input-wrapper.br-input-readonly {
+    --input-background-color: var(--color-background);
+    --input-background-color-opacity: 100%;
+    --input-color: var(--color-white);
+    --input-color-opacity: 100%;
+    --input-opacity: 100%;
+    --input-placeholder-color: var(--color-white);
+    --input-placeholder-color-opacity: 50%;
+    --input-box-shadow: inset 0px 0px 0px 1000px
+        color-mix(in srgb, var(--color-neutral-900) 15%, transparent),
+      var(--input-box-shadow-inset-dark), var(--input-box-shadow-inset-blur-negated-light);
+  }
+}

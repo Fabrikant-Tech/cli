@@ -1,0 +1,45 @@
+@import url('../../../global/css/reset.css');
+
+:host {
+  display: contents;
+  > * {
+    white-space: wrap;
+  }
+}
+
+:host([ellipsis]:not([ellipsis='false'])) {
+  > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+:host([align='left']) {
+  text-align: left;
+}
+
+:host([align='center']) {
+  text-align: center;
+}
+
+:host([align='right']) {
+  text-align: right;
+}
+
+:host([align='justify']) {
+  text-align: justify;
+}
+
+:host {
+  --text-color: var(--color-default-text);
+}
+
+:host([theme]) {
+  color: var(--text-color);
+  > * {
+    --color-default-text: var(--text-assigned-color);
+    ::slotted(*) {
+      --color-default-text: var(--text-assigned-color);
+    }
+  }
+}

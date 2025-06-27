@@ -1,0 +1,56 @@
+@import url('../../../../global/css/reset.css');
+
+:host {
+  display: contents;
+
+  tr {
+    background-color: var(--color-background);
+    box-sizing: border-box;
+    padding: 0px;
+    height: var(--table-row-height);
+    font-size: var(--table-row-font-size);
+    position: relative;
+    overflow: hidden;
+  }
+
+  tr:hover {
+    --table-row-cell-display: var(--table-row-hover-cell-display);
+  }
+}
+
+:host([selected]:not([selected='false'])) {
+  tr {
+    --table-row-cell-display: var(--table-row-hover-cell-display);
+  }
+}
+
+:host([theme='Light']) {
+  .br-table-cell-hover-container {
+    box-shadow: var(--table-cell-hover-shadow);
+  }
+}
+
+:host([theme='Dark']) {
+  .br-table-cell-hover-container {
+    box-shadow: var(--table-cell-hover-shadow);
+  }
+}
+
+:host(:first-child) {
+  ::slotted(br-table-header) {
+    --table-header-border-edge-color: var(--table-border-edge-color);
+  }
+  ::slotted(br-table-header:first-child) {
+    --table-header-row-border-top-left-radius: var(--table-row-border-top-left-radius);
+  }
+
+  ::slotted(br-table-header:last-child) {
+    --table-header-row-border-top-right-radius: var(--table-row-border-top-right-radius);
+  }
+}
+
+:host(:last-child) {
+  ::slotted(br-table-cell) {
+    --table-border-bottom-edge-color: var(--table-border-edge-color);
+  }
+}

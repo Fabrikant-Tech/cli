@@ -1,0 +1,11 @@
+@import url('../../../global/css/reset.css');
+
+br-theme-context {
+  display: contents;
+  color: var(--color-default-text);
+}
+
+br-theme-context[show-background]:not([show-background='false']) {
+  display: block;
+  background-color: var(--color-background);
+}

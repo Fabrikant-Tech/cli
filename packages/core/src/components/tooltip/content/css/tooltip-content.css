@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  background-color: color-mix(
+    in srgb,
+    var(--color-tooltip-background) var(--tooltip-element-background-transparency),
+    transparent
+  );
+  backdrop-filter: blur(calc(var(--template-shadow-blur) * 2));
+  padding: var(--popover-element-padding);
+  border-radius: var(--popover-element-border-radius);
+  overflow: hidden;
+  --color-default-text: var(--color-tooltip-color);
+  max-width: calc(var(--size-unit) * 80);
+}
+
+:host {
+  ::slotted(*),
+  ::slotted(span),
+  ::slotted(h1),
+  ::slotted(h2),
+  ::slotted(h3),
+  ::slotted(h4),
+  ::slotted(h5),
+  ::slotted(h6) {
+    color: var(--color-tooltip-color);
+    --color-default-text: var(--color-tooltip-color);
+  }
+}
+
+:host([show-overflow]:not([show-overflow='false'])) {
+  overflow: visible;
+}

@@ -1,0 +1,142 @@
+:host {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+
+  .editor-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--typography-code-family);
+
+    .cm-editor {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .editor-container::selection {
+    background-color: transparent !important;
+
+    *::selection {
+      background-color: transparent !important;
+    }
+  }
+}
+
+:host([full-width]:not([full-width='false'])) {
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+:host([width*='px']) {
+  flex-shrink: 0;
+}
+
+:host([height*='px']) {
+  flex-shrink: 0;
+}
+
+:host([full-height]:not([full-height='false'])) {
+  height: 100%;
+  min-height: 0;
+  flex-shrink: 1;
+}
+
+:host([width='100%']) {
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+:host([height='100%']) {
+  height: 100%;
+  min-height: 0;
+  flex-shrink: 1;
+}
+
+:host([theme='Light']) {
+  --code-editor-color-gutter: color-mix(in srgb, var(--color-black) 5%, var(--color-white));
+  --code-editor-color-border: color-mix(in srgb, var(--color-black) 0%, transparent);
+  --code-gutter-text-color: color-mix(in srgb, var(--color-black) 45%, transparent);
+  --code-editor-color-caret: var(--color-black);
+  --code-editor-color-comment: color-mix(in srgb, var(--color-neutral-500) 50%, transparent);
+
+  --code-editor-color-keyword: color-mix(in srgb, var(--color-primary-500) 75%, transparent);
+  --code-editor-color-string: color-mix(in srgb, var(--color-constructive-500) 75%, transparent);
+  --code-editor-color-number: color-mix(in srgb, var(--color-constructive-500) 75%, transparent);
+  --code-editor-color-type: color-mix(in srgb, var(--color-constructive-500) 75%, transparent);
+  --code-editor-color-variable: color-mix(in srgb, var(--color-neutral-500) 75%, transparent);
+  --code-editor-color-property: color-mix(in srgb, var(--color-warning-500) 75%, transparent);
+  --code-editor-color-function: color-mix(in srgb, var(--color-primary-500) 75%, transparent);
+  --code-editor-color-selection: color-mix(in srgb, var(--color-primary-500) 15%, transparent);
+  --code-editor-color-active-line: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
+  --code-editor-color-punctuation: color-mix(in srgb, var(--color-neutral-500) 75%, transparent);
+  --code-editor-color-operator: color-mix(in srgb, var(--color-neutral-500) 75%, transparent);
+  --code-editor-color-invalid: color-mix(in srgb, var(--color-destructive-500) 75%, transparent);
+
+  .editor-container {
+    background-color: var(--color-white);
+    color: var(--color-neutral-700);
+  }
+
+  .editor-container {
+    .cm-panels {
+      background-color: var(--color-popover-background);
+      box-shadow: var(--elevation-shadow-1);
+      border: none !important;
+      padding: calc(var(--size-unit) * 2);
+    }
+
+    .cm-search.cm-panel {
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--size-unit) var(--size-unit);
+    }
+  }
+}
+
+:host([theme='Dark']) {
+  --code-editor-color-gutter: color-mix(in srgb, var(--color-white) 5%, var(--color-black));
+  --code-editor-color-border: color-mix(in srgb, var(--color-white) 0%, transparent);
+  --code-gutter-text-color: color-mix(in srgb, var(--color-white) 45%, transparent);
+  --code-editor-color-caret: var(--color-white);
+  --code-editor-color-comment: color-mix(in srgb, var(--color-neutral-300) 50%, transparent);
+
+  --code-editor-color-keyword: color-mix(in srgb, var(--color-primary-500) 75%, transparent);
+  --code-editor-color-string: color-mix(in srgb, var(--color-constructive-500) 75%, transparent);
+  --code-editor-color-number: color-mix(in srgb, var(--color-constructive-500) 75%, transparent);
+  --code-editor-color-type: color-mix(in srgb, var(--color-constructive-500) 75%, transparent);
+  --code-editor-color-variable: color-mix(in srgb, var(--color-neutral-500) 75%, transparent);
+  --code-editor-color-property: color-mix(in srgb, var(--color-warning-500) 75%, transparent);
+  --code-editor-color-function: color-mix(in srgb, var(--color-primary-500) 75%, transparent);
+  --code-editor-color-selection: color-mix(in srgb, var(--color-primary-500) 15%, transparent);
+  --code-editor-color-active-line: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
+  --code-editor-color-punctuation: color-mix(in srgb, var(--color-neutral-500) 75%, transparent);
+  --code-editor-color-operator: color-mix(in srgb, var(--color-neutral-500) 75%, transparent);
+  --code-editor-color-invalid: color-mix(in srgb, var(--color-destructive-500) 75%, transparent);
+
+  .editor-container {
+    background-color: var(--color-black);
+    color: var(--color-neutral-200);
+  }
+
+  .editor-container {
+    .cm-panels {
+      background-color: var(--color-popover-background);
+      box-shadow: var(--elevation-shadow-1);
+      border: none !important;
+      padding: calc(var(--size-unit) * 2);
+    }
+
+    .cm-search.cm-panel {
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--size-unit) var(--size-unit);
+    }
+  }
+}

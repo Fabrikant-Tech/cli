@@ -1,0 +1,67 @@
+@import url('../../../../global/css/reset.css');
+
+:host {
+  display: inline-block;
+  width: 100%;
+  scroll-margin: var(--select-list-item-scroll-margin);
+  scroll-snap-align: start start;
+  scroll-snap-stop: normal;
+}
+
+:host([filtered-out]:not([filtered-out='false'])) {
+  display: none;
+}
+
+:host(.br-select-list-item-top) {
+  br-button[shape][size] {
+    --button-border-bottom-left-radius: 0px;
+    --button-border-bottom-right-radius: 0px;
+  }
+}
+
+:host(.br-select-list-item-middle) {
+  br-button[shape][size] {
+    --button-border-top-left-radius: 0px;
+    --button-border-bottom-left-radius: 0px;
+    --button-border-top-right-radius: 0px;
+    --button-border-bottom-right-radius: 0px;
+  }
+}
+
+:host(.br-select-list-item-bottom) {
+  br-button[shape][size] {
+    --button-border-top-left-radius: 0px;
+    --button-border-top-right-radius: 0px;
+  }
+}
+
+:host(.br-select-list-item-top) {
+  ::slotted(br-button[shape][size]) {
+    --button-border-bottom-left-radius: 0px;
+    --button-border-bottom-right-radius: 0px;
+  }
+}
+
+:host(.br-select-list-item-middle) {
+  ::slotted(br-button[shape][size]) {
+    --button-border-top-left-radius: 0px;
+    --button-border-bottom-left-radius: 0px;
+    --button-border-top-right-radius: 0px;
+    --button-border-bottom-right-radius: 0px;
+  }
+}
+
+:host(.br-select-list-item-bottom) {
+  ::slotted(br-button[shape][size]) {
+    --button-border-top-left-radius: 0px;
+    --button-border-top-right-radius: 0px;
+  }
+}
+
+:host([width*='px']) {
+  flex-shrink: 0;
+}
+
+:host([height*='px']) {
+  flex-shrink: 0;
+}

@@ -1,0 +1,3 @@
+```jsx live
+<BrTimePicker></BrTimePicker>
+```

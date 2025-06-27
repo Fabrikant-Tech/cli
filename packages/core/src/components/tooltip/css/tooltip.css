@@ -1,0 +1,7 @@
+:host {
+  display: contents;
+
+  .br-tooltip-target-wrapper {
+    display: contents;
+  }
+}

@@ -1,0 +1,15 @@
+@import url('../../../../global/css/reset.css');
+
+:host {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(var(--size-unit) * 14);
+  padding: var(--popover-element-padding);
+  background-color: var(--color-background);
+  padding-bottom: 0;
+  box-sizing: border-box;
+  z-index: 2;
+}

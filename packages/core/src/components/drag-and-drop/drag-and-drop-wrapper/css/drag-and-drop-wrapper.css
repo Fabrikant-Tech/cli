@@ -1,0 +1,31 @@
+:host {
+  display: contents;
+
+  ::slotted(*[slot='drag-ghost']) {
+    position: absolute;
+    pointer-events: none;
+    display: none;
+  }
+
+  ::slotted(*[slot='ghost']) {
+    position: absolute;
+    pointer-events: none;
+    display: none;
+  }
+}
+
+:host(.br-drag-and-drop-wrapper-dragging) {
+  user-select: none;
+  ::slotted(*:not([slot])) {
+    user-select: none;
+    position: absolute;
+    pointer-events: none;
+    display: none;
+  }
+
+  ::slotted(*[slot='ghost']) {
+    user-select: none;
+    position: relative !important;
+    display: unset;
+  }
+}

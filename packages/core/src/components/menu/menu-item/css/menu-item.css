@@ -1,0 +1,5 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: calc(var(--actionable-element-height-normal) * 6);
+}

@@ -1,0 +1,8 @@
+@import url('../../../../global/css/reset.css');
+
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: calc(var(--size-unit) * 4) calc(var(--size-unit) * 4);
+}

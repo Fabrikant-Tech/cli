@@ -1,0 +1,9 @@
+@import url('../../../global/css/reset.css');
+
+:host {
+  display: contents;
+
+  .br-popover-target-wrapper {
+    display: contents;
+  }
+}

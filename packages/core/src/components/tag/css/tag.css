@@ -1,0 +1,358 @@
+@import url('../../../global/css/reset.css');
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  justify-content: space-around;
+  transition: var(--transition);
+}
+
+:host(:not([focusable]:not([focusable='false']))) {
+  pointer-events: none;
+}
+
+:host([shape='Circular'][size]) {
+  --template-border-radius-height-ratio: 0.5;
+}
+
+:host {
+  height: var(--tag-height);
+  padding: var(--tag-padding);
+  border-top-left-radius: var(--tag-border-top-left-radius);
+  border-bottom-left-radius: var(--tag-border-bottom-left-radius);
+  border-top-right-radius: var(--tag-border-top-right-radius);
+  border-bottom-right-radius: var(--tag-border-bottom-right-radius);
+  font-size: var(--tag-font-size);
+  font-weight: var(--tag-font-weight);
+  line-height: var(--tag-line-height);
+
+  ::slotted(*[slot='left-icon']) {
+    margin-right: var(--tag-icon-margin);
+  }
+
+  ::slotted(*[slot='right-icon']) {
+    margin-left: var(--tag-icon-margin);
+  }
+
+  ::slotted(br-icon:not([size])) {
+    --svg-icon-size: var(--tag-icon-size);
+  }
+
+  br-icon {
+    pointer-events: all;
+    margin-left: var(--tag-icon-margin);
+    --svg-icon-size: var(--tag-icon-size);
+  }
+}
+
+:host([ellipsis]:not([ellipsis='false'])) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  ::slotted(*:not([slot])) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+:host([size='Xsmall']) {
+  --tag-height: calc(var(--actionable-element-height-x-small) - calc(var(--size-unit) * 1));
+  --tag-line-height: calc(var(--actionable-element-height-x-small) - calc(var(--size-unit) * 1));
+  --tag-padding: 0px calc(var(--size-unit) * 1) 0px calc(var(--size-unit) * 1);
+  --tag-font-size: calc(var(--size-unit) * 2.5);
+  --tag-font-weight: 400;
+  --tag-icon-size: calc(var(--size-unit) * 3);
+  --tag-icon-margin: calc(var(--size-unit) * 1 / 2);
+  --tag-border-top-left-radius: round(
+    calc(
+      calc(var(--actionable-element-height-x-small) - calc(var(--size-unit) * 1)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-bottom-left-radius: round(
+    calc(
+      calc(var(--actionable-element-height-x-small) - calc(var(--size-unit) * 1)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-top-right-radius: round(
+    calc(
+      calc(var(--actionable-element-height-x-small) - calc(var(--size-unit) * 1)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-bottom-right-radius: round(
+    calc(
+      calc(var(--actionable-element-height-x-small) - calc(var(--size-unit) * 1)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+}
+
+:host([size='Small']) {
+  --tag-height: calc(var(--actionable-element-height-small) - calc(var(--size-unit) * 1));
+  --tag-line-height: calc(var(--actionable-element-height-small) - calc(var(--size-unit) * 1));
+  --tag-padding: 0px calc(var(--size-unit) * 1) 0px calc(var(--size-unit) * 1);
+  --tag-font-size: var(--actionable-element-font-size-small);
+  --tag-font-weight: 400;
+  --tag-icon-size: var(--actionable-element-icon-size-small);
+  --tag-icon-margin: calc(var(--size-unit) * 1 / 2);
+  --tag-border-top-left-radius: round(
+    calc(
+      calc(var(--actionable-element-height-small) - calc(var(--size-unit) * 1)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-bottom-left-radius: round(
+    calc(
+      calc(var(--actionable-element-height-small) - calc(var(--size-unit) * 1)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-top-right-radius: round(
+    calc(
+      calc(var(--actionable-element-height-small) - calc(var(--size-unit) * 1)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-bottom-right-radius: round(
+    calc(
+      calc(var(--actionable-element-height-small) - calc(var(--size-unit) * 1)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+}
+
+:host([size='Normal']) {
+  --tag-height: calc(var(--actionable-element-height-normal) - calc(var(--size-unit) * 3));
+  --tag-line-height: calc(var(--actionable-element-height-normal) - calc(var(--size-unit) * 3));
+  --tag-padding: 0px calc(var(--size-unit) * 3 / 2) 0px calc(var(--size-unit) * 3 / 2);
+  --tag-font-size: var(--actionable-element-font-size-normal);
+  --tag-font-weight: 400;
+  --tag-icon-size: var(--actionable-element-icon-size-small);
+  --tag-icon-margin: calc(var(--size-unit) * 3 / 2 / 2);
+  --tag-border-top-left-radius: round(
+    calc(
+      calc(var(--actionable-element-height-normal) - calc(var(--size-unit) * 3)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-bottom-left-radius: round(
+    calc(
+      calc(var(--actionable-element-height-normal) - calc(var(--size-unit) * 3)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-top-right-radius: round(
+    calc(
+      calc(var(--actionable-element-height-normal) - calc(var(--size-unit) * 3)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-bottom-right-radius: round(
+    calc(
+      calc(var(--actionable-element-height-normal) - calc(var(--size-unit) * 3)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+}
+
+:host([size='Large']) {
+  --tag-height: calc(var(--actionable-element-height-large) - calc(var(--size-unit) * 4));
+  --tag-line-height: calc(var(--actionable-element-height-large) - calc(var(--size-unit) * 4));
+  --tag-padding: 0px calc(var(--size-unit) * 4 / 2) 0px calc(var(--size-unit) * 4 / 2);
+  --tag-font-size: var(--actionable-element-font-size-large);
+  --tag-font-weight: 400;
+  --tag-icon-size: var(--actionable-element-icon-size-normal);
+  --tag-icon-margin: calc(var(--size-unit) * 4 / 2 / 2);
+  --tag-border-top-left-radius: round(
+    calc(
+      calc(var(--actionable-element-height-large) - calc(var(--size-unit) * 4)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-bottom-left-radius: round(
+    calc(
+      calc(var(--actionable-element-height-large) - calc(var(--size-unit) * 4)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-top-right-radius: round(
+    calc(
+      calc(var(--actionable-element-height-large) - calc(var(--size-unit) * 4)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+  --tag-border-bottom-right-radius: round(
+    calc(
+      calc(var(--actionable-element-height-large) - calc(var(--size-unit) * 4)) *
+        var(--template-border-radius-height-ratio)
+    ),
+    var(--template-rounding-number)
+  );
+}
+
+:host {
+  cursor: var(--cursor-pointer);
+  outline-offset: var(--tag-outline-offset);
+  outline: var(--tag-outline);
+  --color-default-text: color-mix(in srgb, var(--tag-color) var(--tag-color-opacity), transparent);
+  color: color-mix(in srgb, var(--tag-color) var(--tag-color-opacity), transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--tag-background-color) var(--tag-background-color-opacity),
+    transparent
+  );
+  opacity: var(--tag-opacity);
+
+  ::slotted(*) {
+    color: color-mix(in srgb, var(--tag-color) var(--tag-color-opacity), transparent);
+    --color-default-text: color-mix(
+      in srgb,
+      var(--tag-color) var(--tag-color-opacity),
+      transparent
+    );
+  }
+}
+
+:host([fill-style]) {
+  --tag-outline-offset: 0px;
+  --tag-color: var(--tag-color-type-color);
+  --tag-color-opacity: 100%;
+  --tag-background-color: var(--tag-color-type-background-color);
+  --tag-opacity: 1;
+
+  ::slotted(br-icon:not([color])) {
+    --icon-color-1: var(--tag-color);
+    --icon-color-1-opacity: 100%;
+    --icon-color-2: var(--tag-color);
+    --icon-color-2-opacity: 75%;
+  }
+}
+
+:host([fill-style='Ghost']) {
+  --tag-background-color-opacity: 20%;
+}
+
+:host([fill-style]:focus-visible) {
+  --tag-outline: 2px solid color-mix(in srgb, var(--tag-color-type-color) 100%, transparent);
+  --tag-outline-offset: 2px;
+}
+
+:host([fill-style='Ghost']:hover) {
+  --tag-background-color-opacity: 30%;
+}
+
+:host([fill-style='Ghost']:active) {
+  --tag-background-color-opacity: 35%;
+}
+
+:host([fill-style='Ghost'][color-type='Primary'][theme='Light']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-primary);
+  --tag-color-type-background-color: var(--color-primary-500);
+}
+
+:host([fill-style='Ghost'][color-type='Primary'][theme='Dark']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-primary);
+  --tag-color-type-background-color: var(--color-primary-300);
+}
+
+:host([fill-style='Ghost'][color-type='Constructive'][theme='Light']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-constructive);
+  --tag-color-type-background-color: var(--color-constructive-500);
+}
+
+:host([fill-style='Ghost'][color-type='Constructive'][theme='Dark']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-constructive);
+  --tag-color-type-background-color: var(--color-constructive-400);
+}
+
+:host([fill-style='Ghost'][color-type='Destructive'][theme='Light']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-destructive);
+  --tag-color-type-background-color: var(--color-destructive-500);
+}
+
+:host([fill-style='Ghost'][color-type='Destructive'][theme='Dark']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-destructive);
+  --tag-color-type-background-color: var(--color-destructive-400);
+}
+
+:host([fill-style='Ghost'][color-type='Warning'][theme='Light']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-warning);
+  --tag-color-type-background-color: var(--color-warning-500);
+}
+
+:host([fill-style='Ghost'][color-type='Warning'][theme='Dark']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-warning);
+  --tag-color-type-background-color: var(--color-warning-400);
+}
+
+:host([fill-style='Ghost'][color-type='Neutral'][theme='Light']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-neutral);
+  --tag-color-type-background-color: var(--color-neutral-500);
+}
+
+:host([fill-style='Ghost'][color-type='Neutral'][theme='Dark']) {
+  --tag-color-type-color: var(--template-text-color-over-ghost-neutral);
+  --tag-color-type-background-color: var(--color-neutral-400);
+}
+
+:host([fill-style='Solid']) {
+  --tag-background-color-opacity: 100%;
+}
+
+:host([fill-style='Solid']:focus-visible) {
+  --tag-outline: 2px solid
+    color-mix(in srgb, var(--tag-color-type-background-color) 100%, transparent);
+}
+:host([fill-style='Solid']:hover) {
+  box-shadow: inset 0px 0px 0px 1000px color-mix(in srgb, var(--color-neutral-900) 5%, transparent);
+}
+
+:host([fill-style='Solid']:active) {
+  box-shadow: inset 0px 0px 0px 1000px color-mix(in srgb, var(--color-neutral-900) 10%, transparent);
+}
+
+:host([fill-style='Solid'][color-type='Primary']) {
+  --tag-color: var(--template-text-color-over-solid-primary);
+  --tag-color-type-background-color: var(--color-primary-500);
+}
+
+:host([fill-style='Solid'][color-type='Constructive']) {
+  --tag-color: var(--template-text-color-over-solid-constructive);
+  --tag-color-type-background-color: var(--color-constructive-500);
+}
+
+:host([fill-style='Solid'][color-type='Warning']) {
+  --tag-color: var(--template-text-color-over-solid-warning);
+  --tag-color-type-background-color: var(--color-warning-500);
+}
+
+:host([fill-style='Solid'][color-type='Destructive']) {
+  --tag-color: var(--template-text-color-over-solid-destructive);
+  --tag-color-type-background-color: var(--color-destructive-500);
+}
+
+:host([fill-style='Solid'][color-type='Neutral']) {
+  --tag-color: var(--color-white);
+  --tag-color-type-background-color: var(--color-neutral-500);
+}
