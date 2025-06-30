@@ -8,4 +8,6 @@ const destructive = (text: string | number | boolean) => ux.colorize('#e43b3b', 
 
 const constructive = (text: string | number | boolean) => ux.colorize('#55b32c', text.toString());
 
-export { constructive, destructive, primary, warning };
+const neutral = (text: string | number | boolean) => ux.colorize('#656682', text.toString());
+
+export { constructive, destructive, neutral, primary, warning };

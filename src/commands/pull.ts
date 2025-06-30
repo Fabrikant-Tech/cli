@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
 import {
   cleanSemver,
@@ -7,8 +7,7 @@ import {
   isVersionId,
 } from '../utils/version-utils.js';
 import { select } from '@inquirer/prompts';
-import type { VersionDto } from '../utils/api.js';
-import { listSourceFiles, listVersions } from '../utils/api.js';
+import { getNormalizedSourceFilesByVersion, listVersions } from '../utils/api.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { isEmpty } from 'lodash-es';
 import { constructive, destructive, primary } from '../utils/colorize.js';
@@ -16,11 +15,9 @@ import { BaseCommand } from '../utils/base-command.js';
 import path from 'node:path';
 import { cwd } from 'node:process';
 import { buildPullStatusTable } from '../utils/source-file-utils.js';
-// @ts-expect-error
 import pager from 'node-pager';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { action } from '@oclif/core/ux';
-import type { SourceFileDto } from '../types/dtos/source-file-dto.js';
+import type { VersionDto } from '../types/index.js';
 
 class Pull extends BaseCommand {
   static args = {};
@@ -44,7 +41,7 @@ class Pull extends BaseCommand {
   };
 
   async run(): Promise<void> {
-    const token = await getCredentialsOrThrow();
+    const { token, organization: organizationId } = await getCredentialsOrThrow();
     const { flags } = await this.parse(Pull);
     const { force } = flags;
     const directory = path.resolve(cwd(), flags.directory);
@@ -57,10 +54,13 @@ class Pull extends BaseCommand {
       isNotEmpty(flags.version) && isVersionId(flags.version) ? flags.version : undefined;
 
     if (isEmpty(semanticVersion) && isEmpty(versionId)) {
-      const choices = versions.map((version) => ({
-        name: getVersionDisplayName(version),
-        value: version._id,
-      }));
+      const choices = versions.map((version) => {
+        return {
+          name: getVersionDisplayName(version),
+          description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
+          value: version._id,
+        };
+      });
 
       versionId = await select({
         message: 'Select a version to pull design system files from',
@@ -80,14 +80,16 @@ class Pull extends BaseCommand {
       this.error(destructive(`Version '${semanticVersion ?? versionId}' not found.`));
     }
 
-    const sourceFiles = await listSourceFiles({ token, versionId: version._id });
-    if (isEmpty(sourceFiles)) {
+    ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);
+    const sourceFiles = await getNormalizedSourceFilesByVersion({ token, versionId: version._id });
+    ux.action.stop(constructive('✔'));
+    if (!Object.keys(sourceFiles).some((path) => path.endsWith('.tsx'))) {
       this.error(
         `No source files were found for '${getVersionDisplayName(version)}'. If you think this is an error, contact us at help@designbase.com for assistance.`
       );
     }
 
-    const colorizedFileCount = primary(sourceFiles.length);
+    const colorizedFileCount = primary(Object.keys(sourceFiles).length);
     const colorizedDirectory = primary(directory);
 
     if (force) {
@@ -136,13 +138,16 @@ class Pull extends BaseCommand {
   }
 }
 
-const writeSourceFiles = async (directory: string, sourceFiles: SourceFileDto[]): Promise<void> => {
+const writeSourceFiles = async (
+  directory: string,
+  sourceFiles: Record<string, string>
+): Promise<void> => {
   await mkdir(directory, { recursive: true });
   await Promise.all(
-    sourceFiles.map(async (sourceFile) => {
-      const sourceFilePath = path.resolve(directory, sourceFile.path);
+    Object.entries(sourceFiles).map(async ([_path, content]) => {
+      const sourceFilePath = path.resolve(directory, _path);
       await mkdir(path.dirname(sourceFilePath), { recursive: true });
-      await writeFile(sourceFilePath, sourceFile.content ?? '', 'utf-8');
+      await writeFile(sourceFilePath, content ?? '', 'utf-8');
     })
   );
 };

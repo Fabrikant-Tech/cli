@@ -12,6 +12,7 @@
     "diff": "8.0.2",
     "globby": "14.1.0",
     "lodash-es": "4.17.21",
+    "multimatch": "7.0.0",
     "node-fetch": "3.3.2",
     "node-pager": "0.3.6",
     "semver": "7.7.2",
