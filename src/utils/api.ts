@@ -217,7 +217,7 @@ const getNormalizedSourceFilesByVersion = async (
     ...Object.values(icons).reduce((accumulated, icon) => {
       const iconFilePath = path.join('packages/core/assets/icon', `${icon.name}.svg`);
       return { ...accumulated, [iconFilePath]: icon.data ?? '' };
-    }),
+    }, {}),
   };
 
   return sourceFiles;

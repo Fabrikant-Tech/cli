@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
 import {
   cleanSemver,
@@ -81,7 +81,9 @@ class Pull extends BaseCommand {
       this.error(destructive(`Version '${semanticVersion ?? versionId}' not found.`));
     }
 
+    ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);
     const sourceFiles = await getNormalizedSourceFilesByVersion({ token, versionId: version._id });
+    ux.action.stop(constructive('✔'));
     if (!Object.keys(sourceFiles).some((path) => path.endsWith('.tsx'))) {
       this.error(
         `No source files were found for '${getVersionDisplayName(version)}'. If you think this is an error, contact us at help@designbase.com for assistance.`
