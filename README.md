@@ -1,403 +1,93 @@
-# @designbase/cli
+# CLI
 
-Designbase CLI
+This CLI provides additional ways to interact with Designbase services that can replace or supplement workflows that might be more cumbersome in the web UI, like pushing code. The CLI is still a work in progress, so feel free to request new features or report any bugs you might find.
 
-[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/@designbase/cli.svg)](https://npmjs.org/package/@designbase/cli)
-[![Downloads/week](https://img.shields.io/npm/dw/@designbase/cli.svg)](https://npmjs.org/package/@designbase/cli)
+## Installation
 
-<!-- toc -->
+The CLI is not yet distributed via any package managers like `npm` or `brew`. For now, you'll need to pull and build it from source.
 
-- [Usage](#usage)
-- [Commands](#commands)
-<!-- tocstop -->
+```sh
+# Clone the repository and navigate to it
+git clone git@github.com:Fabrikant-Tech/cli.git && cd cli
 
-# Usage
+# Ensure you're using the right node version
+nvm use
 
-<!-- usage -->
+# Install dependencies required to run the cli
+npm i
 
-```sh-session
-$ npm install -g @designbase/cli
-$ designbase COMMAND
-running command...
-$ designbase (--version)
-@designbase/cli/0.0.0 darwin-arm64 node-v22.7.0
-$ designbase --help [COMMAND]
-USAGE
-  $ designbase COMMAND
-...
+# Run a production build
+npm run build
+
+# Install the CLI globally so it is available in your path
+npm i -g .
+
+# Verify it works
+designbase
 ```
 
-<!-- usagestop -->
+## Setup
 
-# Commands
+You'll need to be authenticated to run most of the commands. To authenticate, run `designbase login` and provide your email address and password. A JWT will be cached in a config directory and used for future requests.
 
-<!-- commands -->
+You can always check your authentication status with `designbase whoami`. Most commands will verify your token is still valid before proceeding with any requests.
 
-- [`designbase hello PERSON`](#designbase-hello-person)
-- [`designbase hello world`](#designbase-hello-world)
-- [`designbase help [COMMAND]`](#designbase-help-command)
-- [`designbase plugins`](#designbase-plugins)
-- [`designbase plugins add PLUGIN`](#designbase-plugins-add-plugin)
-- [`designbase plugins:inspect PLUGIN...`](#designbase-pluginsinspect-plugin)
-- [`designbase plugins install PLUGIN`](#designbase-plugins-install-plugin)
-- [`designbase plugins link PATH`](#designbase-plugins-link-path)
-- [`designbase plugins remove [PLUGIN]`](#designbase-plugins-remove-plugin)
-- [`designbase plugins reset`](#designbase-plugins-reset)
-- [`designbase plugins uninstall [PLUGIN]`](#designbase-plugins-uninstall-plugin)
-- [`designbase plugins unlink [PLUGIN]`](#designbase-plugins-unlink-plugin)
-- [`designbase plugins update`](#designbase-plugins-update)
+## Commands
 
-## `designbase hello PERSON`
+### login
 
-Say hello
+This command will authenticate your access to Designbase via the same email & password you use to login to the web UI. If you run and complete a login while you're already logged in, your token will be refreshed (or changed, if you logged in as a different user.)
 
-```
+```sh
 USAGE
-  $ designbase hello PERSON -f <value>
+  $ designbase login
+```
 
-ARGUMENTS
-  PERSON  Person to say hello to
+### pull
+
+Similar to `git pull`, this command will retrieve files from the Designbase server for a specified design system version (published or unpublished) and write them as files on your local filesystem.
+
+```sh
+USAGE
+  $ designbase pull [-v <value>] [-d <value>] [-f]
 
 FLAGS
-  -f, --from=<value>  (required) Who is saying hello
-
-DESCRIPTION
-  Say hello
-
-EXAMPLES
-  $ designbase hello friend --from oclif
-  hello friend from oclif! (./src/commands/hello/index.ts)
+  -d, --directory=<value>  [default: .] Directory to write source files to.
+  -f, --force              Write the source files without a confirmation prompt
+  -v, --version=<value>    Id or published version number to pull files from. For example: v0.0.43, 0.0.43, or 66461c33e633cbb0adf030ab
 ```
 
-_See code: [src/commands/hello/index.ts](https://github.com/fabrikant-tech/cli/blob/v0.0.0/src/commands/hello/index.ts)_
+### push
 
-## `designbase hello world`
+Similar to `git push`, this command push design system files from your local filesystem to the Designbase server. This command will only work for versions that are unpublished.
 
-Say hello world
-
-```
+```sh
 USAGE
-  $ designbase hello world
-
-DESCRIPTION
-  Say hello world
-
-EXAMPLES
-  $ designbase hello world
-  hello world! (./src/commands/hello/world.ts)
-```
-
-_See code: [src/commands/hello/world.ts](https://github.com/fabrikant-tech/cli/blob/v0.0.0/src/commands/hello/world.ts)_
-
-## `designbase help [COMMAND]`
-
-Display help for designbase.
-
-```
-USAGE
-  $ designbase help [COMMAND...] [-n]
-
-ARGUMENTS
-  COMMAND...  Command to show help for.
+  $ designbase push [--acceptTokensJson] [--acceptIconSvgs] [--deletePathsNotSpecified] [-d <value>] [-e <value>...] [-v <value>]
 
 FLAGS
-  -n, --nested-commands  Include all nested commands in the output.
-
-DESCRIPTION
-  Display help for designbase.
+  -d, --directory=<value>        [default: .] Directory to read source files from.
+  -e, --exclude=<value>...       Glob pattern to exclude from pushing. For example, designbase push --exclude "**/*.md" would recursively exclude any markdown files.
+  -v, --versionId=<value>        Id to push files to. For example: 66461c33e633cbb0adf030ab. Published version numbers are not accepted because published versions cannot be modified.
+      --acceptIconSvgs           Push changes to SVG files in the packages/core/assets/icon directory.
+      --acceptTokensJson         Push changes to the tokens.json file.
+      --deletePathsNotSpecified  Delete existing paths on the Designbase server that are not present in  push.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.29/src/commands/help.ts)_
+> [!NOTE]  
+> By default, changes to SVG files in the `packages/core/assets/icon` directory will be ignored unless explicitly opted in with the `--acceptIconSvgs` flag, since they don't change as often and are likely managed by a designer.
 
-## `designbase plugins`
+> [!NOTE]  
+> By default, changes to the `tokens.json` file will not be ignored unless explicitly opted in with the `--acceptTokensJson` flag, since they don't change as often and are likely managed by a designer.
 
-List installed plugins.
+> [!CAUTION]  
+> Pushes are "upsert-only" by default. This means that existing source files, icons, or tokens won't be deleted if they are not provided in the push (i.e. excluded via the `--exclude` flag, changes to the `tokens.json` file without `--acceptTokensJson`, etc.). If you want to delete existing resources that are not provided in the push, you can specify the `--deletePathsNotSpecified` flag, which will delete any resources that are present on the server but not in the push.
 
-```
+### whoami
+
+This command will display your current authentication status. If you're logged in, you'll see what email address you're authenticated with. If your token is invalid or expired, it should tell you to login again.
+
+```sh
 USAGE
-  $ designbase plugins [--json] [--core]
-
-FLAGS
-  --core  Show core plugins.
-
-GLOBAL FLAGS
-  --json  Format output as json.
-
-DESCRIPTION
-  List installed plugins.
-
-EXAMPLES
-  $ designbase plugins
+  $ designbase whoami
 ```
-
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.42/src/commands/plugins/index.ts)_
-
-## `designbase plugins add PLUGIN`
-
-Installs a plugin into designbase.
-
-```
-USAGE
-  $ designbase plugins add PLUGIN... [--json] [-f] [-h] [-s | -v]
-
-ARGUMENTS
-  PLUGIN...  Plugin to install.
-
-FLAGS
-  -f, --force    Force npm to fetch remote resources even if a local copy exists on disk.
-  -h, --help     Show CLI help.
-  -s, --silent   Silences npm output.
-  -v, --verbose  Show verbose npm output.
-
-GLOBAL FLAGS
-  --json  Format output as json.
-
-DESCRIPTION
-  Installs a plugin into designbase.
-
-  Uses npm to install plugins.
-
-  Installation of a user-installed plugin will override a core plugin.
-
-  Use the DESIGNBASE_NPM_LOG_LEVEL environment variable to set the npm loglevel.
-  Use the DESIGNBASE_NPM_REGISTRY environment variable to set the npm registry.
-
-ALIASES
-  $ designbase plugins add
-
-EXAMPLES
-  Install a plugin from npm registry.
-
-    $ designbase plugins add myplugin
-
-  Install a plugin from a github url.
-
-    $ designbase plugins add https://github.com/someuser/someplugin
-
-  Install a plugin from a github slug.
-
-    $ designbase plugins add someuser/someplugin
-```
-
-## `designbase plugins:inspect PLUGIN...`
-
-Displays installation properties of a plugin.
-
-```
-USAGE
-  $ designbase plugins inspect PLUGIN...
-
-ARGUMENTS
-  PLUGIN...  [default: .] Plugin to inspect.
-
-FLAGS
-  -h, --help     Show CLI help.
-  -v, --verbose
-
-GLOBAL FLAGS
-  --json  Format output as json.
-
-DESCRIPTION
-  Displays installation properties of a plugin.
-
-EXAMPLES
-  $ designbase plugins inspect myplugin
-```
-
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.42/src/commands/plugins/inspect.ts)_
-
-## `designbase plugins install PLUGIN`
-
-Installs a plugin into designbase.
-
-```
-USAGE
-  $ designbase plugins install PLUGIN... [--json] [-f] [-h] [-s | -v]
-
-ARGUMENTS
-  PLUGIN...  Plugin to install.
-
-FLAGS
-  -f, --force    Force npm to fetch remote resources even if a local copy exists on disk.
-  -h, --help     Show CLI help.
-  -s, --silent   Silences npm output.
-  -v, --verbose  Show verbose npm output.
-
-GLOBAL FLAGS
-  --json  Format output as json.
-
-DESCRIPTION
-  Installs a plugin into designbase.
-
-  Uses npm to install plugins.
-
-  Installation of a user-installed plugin will override a core plugin.
-
-  Use the DESIGNBASE_NPM_LOG_LEVEL environment variable to set the npm loglevel.
-  Use the DESIGNBASE_NPM_REGISTRY environment variable to set the npm registry.
-
-ALIASES
-  $ designbase plugins add
-
-EXAMPLES
-  Install a plugin from npm registry.
-
-    $ designbase plugins install myplugin
-
-  Install a plugin from a github url.
-
-    $ designbase plugins install https://github.com/someuser/someplugin
-
-  Install a plugin from a github slug.
-
-    $ designbase plugins install someuser/someplugin
-```
-
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.42/src/commands/plugins/install.ts)_
-
-## `designbase plugins link PATH`
-
-Links a plugin into the CLI for development.
-
-```
-USAGE
-  $ designbase plugins link PATH [-h] [--install] [-v]
-
-ARGUMENTS
-  PATH  [default: .] path to plugin
-
-FLAGS
-  -h, --help          Show CLI help.
-  -v, --verbose
-      --[no-]install  Install dependencies after linking the plugin.
-
-DESCRIPTION
-  Links a plugin into the CLI for development.
-
-  Installation of a linked plugin will override a user-installed or core plugin.
-
-  e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello'
-  command will override the user-installed or core plugin implementation. This is useful for development work.
-
-
-EXAMPLES
-  $ designbase plugins link myplugin
-```
-
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.42/src/commands/plugins/link.ts)_
-
-## `designbase plugins remove [PLUGIN]`
-
-Removes a plugin from the CLI.
-
-```
-USAGE
-  $ designbase plugins remove [PLUGIN...] [-h] [-v]
-
-ARGUMENTS
-  PLUGIN...  plugin to uninstall
-
-FLAGS
-  -h, --help     Show CLI help.
-  -v, --verbose
-
-DESCRIPTION
-  Removes a plugin from the CLI.
-
-ALIASES
-  $ designbase plugins unlink
-  $ designbase plugins remove
-
-EXAMPLES
-  $ designbase plugins remove myplugin
-```
-
-## `designbase plugins reset`
-
-Remove all user-installed and linked plugins.
-
-```
-USAGE
-  $ designbase plugins reset [--hard] [--reinstall]
-
-FLAGS
-  --hard       Delete node_modules and package manager related files in addition to uninstalling plugins.
-  --reinstall  Reinstall all plugins after uninstalling.
-```
-
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.42/src/commands/plugins/reset.ts)_
-
-## `designbase plugins uninstall [PLUGIN]`
-
-Removes a plugin from the CLI.
-
-```
-USAGE
-  $ designbase plugins uninstall [PLUGIN...] [-h] [-v]
-
-ARGUMENTS
-  PLUGIN...  plugin to uninstall
-
-FLAGS
-  -h, --help     Show CLI help.
-  -v, --verbose
-
-DESCRIPTION
-  Removes a plugin from the CLI.
-
-ALIASES
-  $ designbase plugins unlink
-  $ designbase plugins remove
-
-EXAMPLES
-  $ designbase plugins uninstall myplugin
-```
-
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.42/src/commands/plugins/uninstall.ts)_
-
-## `designbase plugins unlink [PLUGIN]`
-
-Removes a plugin from the CLI.
-
-```
-USAGE
-  $ designbase plugins unlink [PLUGIN...] [-h] [-v]
-
-ARGUMENTS
-  PLUGIN...  plugin to uninstall
-
-FLAGS
-  -h, --help     Show CLI help.
-  -v, --verbose
-
-DESCRIPTION
-  Removes a plugin from the CLI.
-
-ALIASES
-  $ designbase plugins unlink
-  $ designbase plugins remove
-
-EXAMPLES
-  $ designbase plugins unlink myplugin
-```
-
-## `designbase plugins update`
-
-Update installed plugins.
-
-```
-USAGE
-  $ designbase plugins update [-h] [-v]
-
-FLAGS
-  -h, --help     Show CLI help.
-  -v, --verbose
-
-DESCRIPTION
-  Update installed plugins.
-```
-
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.42/src/commands/plugins/update.ts)_
-
-<!-- commandsstop -->

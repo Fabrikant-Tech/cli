@@ -19,7 +19,7 @@ import pager from 'node-pager';
 
 class Push extends BaseCommand {
   static args = {};
-  static description = 'Pull design system files from Designbase';
+  static description = 'Push design system files to Designbase';
   static examples = [];
   static flags = {
     acceptTokensJson: Flags.boolean({
