@@ -7,7 +7,7 @@ import {
   isVersionId,
   isVersionPublishingOrPublished,
 } from '../utils/version-utils.js';
-import { constructive, destructive, primary } from '../utils/colorize.js';
+import { constructive, destructive, neutral, primary, warning } from '../utils/colorize.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { isEmpty } from 'lodash-es';
 import { select } from '@inquirer/prompts';
@@ -23,6 +23,19 @@ class Push extends BaseCommand {
   static description = 'Pull design system files from Designbase';
   static examples = [];
   static flags = {
+    acceptTokensJson: Flags.boolean({
+      description: `Push changes to the ${primary('tokens.json')} file.`,
+      default: false,
+    }),
+    acceptIconSvgs: Flags.boolean({
+      description: `Push changes to SVG files in the ${primary('packages/core/assets/icon')} directory.`,
+      default: false,
+    }),
+    deletePathsNotSpecified: Flags.boolean({
+      description:
+        'Delete existing paths on the Designbase server that are not present in the push.',
+      default: false,
+    }),
     directory: Flags.string({
       char: 'd',
       description: 'Directory to read source files from.',
@@ -35,15 +48,14 @@ class Push extends BaseCommand {
     }),
     versionId: Flags.string({
       char: 'v',
-      description:
-        'Id to push files to. For example: 66461c33e633cbb0adf030ab. Published version numbers are not accepted because published versions cannot be modified.',
+      description: `Id to push files to. For example: ${primary('66461c33e633cbb0adf030ab')}. Published version numbers are not accepted because published versions cannot be modified.`,
     }),
   };
 
   async run(): Promise<void> {
     const { token } = await getCredentialsOrThrow();
     const { flags } = await this.parse(Push);
-    const directory = flags.directory;
+    const { directory, deletePathsNotSpecified, acceptIconSvgs, acceptTokensJson } = flags;
     const additionalExcludes = (flags.exclude ?? []).map((pattern) => `!${pattern}`);
     let versionId = flags.versionId;
 
@@ -106,15 +118,53 @@ class Push extends BaseCommand {
         return { path: filePath, content };
       })
     );
+    const colorizedVersion = primary(getVersionDisplayName(version));
 
-    const table = buildPushStatusTable({ sourceSourceFiles, targetSourceFiles });
+    const { table, added, removed, modified, unmodified, ignored } = buildPushStatusTable({
+      sourceSourceFiles,
+      targetSourceFiles,
+      acceptIconSvgs,
+      acceptTokensJson,
+      deletePathsNotSpecified,
+    });
+
     await pager(table);
-    // console.log('files', targetSourceFiles);
-    // const result = await pushSourceFiles({
-    //   versionId: version._id,
-    //   token,
-    //   sourceFiles: targetSourceFiles,
-    // });
+
+    let answer: 'yes' | 'no' | 'status' | undefined = undefined;
+
+    while (answer !== 'yes') {
+      answer = await select({
+        message: `Push ${Object.keys(targetSourceFiles).length} files (${constructive(`${added} added`)}, ${destructive(`${removed} removed`)}, ${warning(`${modified} modified`)}, ${unmodified} unmodified, ${neutral(`${ignored} ignored`)})`,
+
+        choices: [
+          { value: 'status', name: 'Show summary of file changes' },
+          {
+            value: 'yes',
+            name: `Yes, push changes to ${colorizedVersion}`,
+          },
+          {
+            value: 'no',
+            name: `No, do not push any changes to ${colorizedVersion}`,
+          },
+        ],
+      });
+
+      if (answer === 'status') {
+        await pager(table);
+      }
+
+      if (answer === 'no') {
+        return;
+      }
+
+      if (answer === 'yes') {
+        const result = await pushSourceFiles({
+          versionId: version._id,
+          token,
+          sourceFiles: targetSourceFiles,
+        });
+      }
+    }
   }
 }
 
