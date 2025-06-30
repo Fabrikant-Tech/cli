@@ -17,3 +17,6 @@ pnpm-lock.yaml
 # These directories can be created by the `designbase pull` command but we don't want to accidentally commit a bunch of core repo files from testing
 apps/
 packages/
+
+# Useful for pulling files for development
+.tmp*

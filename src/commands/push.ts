@@ -11,12 +11,25 @@ import { destructive, primary } from '../utils/colorize.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { isEmpty } from 'lodash-es';
 import { select } from '@inquirer/prompts';
+import { readdir } from 'node:fs/promises';
+import { globby } from 'globby';
+import path from 'node:path';
 
 class Push extends BaseCommand {
   static args = {};
   static description = 'Pull design system files from Designbase';
   static examples = [];
   static flags = {
+    directory: Flags.string({
+      char: 'd',
+      description: 'Directory to read source files from.',
+      default: '.',
+    }),
+    exclude: Flags.string({
+      char: 'e',
+      description: `Glob pattern to exclude from pushing. For example, ${primary('designbase push --exclude "**/*.md"')} would recursively exclude any markdown files.`,
+      multiple: true,
+    }),
     versionId: Flags.string({
       char: 'v',
       description:
@@ -27,7 +40,10 @@ class Push extends BaseCommand {
   async run(): Promise<void> {
     const { token } = await getCredentialsOrThrow();
     const { flags } = await this.parse(Push);
+    const directory = flags.directory;
+    const additionalExcludes = (flags.exclude ?? []).map((pattern) => `!${pattern}`);
     let versionId = flags.versionId;
+
     if (isNotEmpty(versionId) && !isVersionId(versionId)) {
       this.error(
         destructive(
@@ -65,6 +81,15 @@ class Push extends BaseCommand {
       this.error(destructive(`Version '${version._id}' is ${status} and cannot be modified.`));
     }
 
+    const resolvedDirectory = path.resolve(directory);
+    const filePaths = await globby(
+      ['**/*', '!node_modules', '!dist', '!build', ...additionalExcludes],
+      {
+        cwd: resolvedDirectory,
+      }
+    );
+
+    console.log('filePaths', filePaths);
     const result = await pushSourceFiles({
       versionId: version._id,
       token,
