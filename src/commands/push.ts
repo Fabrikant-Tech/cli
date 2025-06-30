@@ -1,19 +1,22 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
-import { listVersions, pushSourceFiles } from '../utils/api.js';
+import { getNormalizedSourceFilesByVersion, listVersions, pushSourceFiles } from '../utils/api.js';
 import { BaseCommand } from '../utils/base-command.js';
 import {
   getVersionDisplayName,
   isVersionId,
   isVersionPublishingOrPublished,
 } from '../utils/version-utils.js';
-import { destructive, primary } from '../utils/colorize.js';
+import { constructive, destructive, primary } from '../utils/colorize.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { isEmpty } from 'lodash-es';
 import { select } from '@inquirer/prompts';
-import { readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { globby } from 'globby';
 import path from 'node:path';
+import { buildPushStatusTable } from '../utils/source-file-utils.js';
+// @ts-expect-error
+import pager from 'node-pager';
 
 class Push extends BaseCommand {
   static args = {};
@@ -89,12 +92,29 @@ class Push extends BaseCommand {
       }
     );
 
-    console.log('filePaths', filePaths);
-    const result = await pushSourceFiles({
+    ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);
+    const sourceSourceFiles = await getNormalizedSourceFilesByVersion({
       versionId: version._id,
       token,
-      sourceFiles: [{ path: 'turbo.json', content: JSON.stringify({}) }],
     });
+    ux.action.stop(constructive('✔'));
+
+    const targetSourceFiles = await Promise.all(
+      filePaths.map(async (filePath) => {
+        const resolvedFilePath = path.resolve(directory, filePath);
+        const content = await readFile(resolvedFilePath, 'utf-8');
+        return { path: filePath, content };
+      })
+    );
+
+    const table = buildPushStatusTable({ sourceSourceFiles, targetSourceFiles });
+    await pager(table);
+    // console.log('files', targetSourceFiles);
+    // const result = await pushSourceFiles({
+    //   versionId: version._id,
+    //   token,
+    //   sourceFiles: targetSourceFiles,
+    // });
   }
 }
 
