@@ -13,6 +13,7 @@ import type {
 import type { SerializableObject } from '../types/serializable-object.js';
 import { normalizeSourceFiles } from './source-file-utils.js';
 import path from 'node:path';
+import { API_BASE_URL } from './config.js';
 
 interface LoginOptions {
   email: string;
@@ -24,8 +25,6 @@ interface AuthenticatedRequestOptions {
 }
 
 const JSON_CONTENT_TYPE_HEADER = { 'Content-Type': 'application/json' };
-
-const API_BASE_URL = 'http://localhost:8080';
 
 const login = async (options: LoginOptions): Promise<UserDto> => {
   const { email, password } = options;

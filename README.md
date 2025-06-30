@@ -91,3 +91,13 @@ This command will display your current authentication status. If you're logged i
 USAGE
   $ designbase whoami
 ```
+
+## Advanced
+
+### Specifying the API base url
+
+If you need to target a different API (such as the development API, or a local API server), you can set the `DESIGNBASE_API_BASE_URL` environment variable when running commands.
+
+```sh
+DESIGNBASE_API_BASE_URL=http://localhost:8080 designbase login
+```
