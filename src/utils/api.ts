@@ -3,9 +3,16 @@ import fetch from 'node-fetch';
 import { ApiError } from './errors.js';
 import { URLSearchParams } from 'url';
 import { isNotEmpty } from './collection-utils.js';
-import type { OrganizationDto, SourceFileDto, UserDto, VersionDto } from '../types/dtos/index.js';
+import type {
+  IconDto,
+  OrganizationDto,
+  SourceFileDto,
+  UserDto,
+  VersionDto,
+} from '../types/dtos/index.js';
 import type { SerializableObject } from '../types/serializable-object.js';
 import { normalizeSourceFiles } from './source-file-utils.js';
+import path from 'node:path';
 
 interface LoginOptions {
   email: string;
@@ -135,6 +142,34 @@ const getOrganization = async (options: GetOrganizationOptions) => {
   return organization;
 };
 
+type ListIconsOptions = AuthenticatedRequestOptions & {
+  /**
+   * Whether to include the SVG data for the icon
+   */
+  includeData?: boolean;
+  versionId: string;
+};
+
+interface ListIconsResult {
+  [iconName: string]: IconDto;
+}
+
+const listIcons = async (options: ListIconsOptions): Promise<ListIconsResult> => {
+  const { versionId, token, includeData = false } = options;
+  const response = await get(`system/versions/${versionId}/icons`, {
+    headers: getAuthorizationHeader(token),
+    query: { includeData },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw ApiError.fromResponseJson(error);
+  }
+
+  const icons = (await response.json()) as ListIconsResult;
+  return icons;
+};
+
 type GetSourceFilesWithTokensAndMetaOptions = AuthenticatedRequestOptions & {
   versionId: string;
 };
@@ -172,6 +207,16 @@ const getNormalizedSourceFilesByVersion = async (
           },
         },
       },
+    }),
+  };
+
+  const icons = await listIcons({ versionId, token, includeData: true });
+
+  sourceFiles = {
+    ...sourceFiles,
+    ...Object.values(icons).reduce((accumulated, icon) => {
+      const iconFilePath = path.join('packages/core/assets/icon', `${icon.name}.svg`);
+      return { ...accumulated, [iconFilePath]: icon.data ?? '' };
     }),
   };
 
@@ -248,7 +293,7 @@ const post = async (path: string, options: PostOptions): Promise<Response> => {
 
 interface GetOptions extends Omit<RequestInit, 'body'> {
   headers?: Record<string, string>;
-  query?: Record<string, string>;
+  query?: Record<string, string | number | boolean>;
 }
 
 const get = async (path: string, options: GetOptions): Promise<Response> => {
@@ -260,9 +305,12 @@ const get = async (path: string, options: GetOptions): Promise<Response> => {
   });
 };
 
-const getApiUrl = (path: string, query?: Record<string, string>): string => {
+const getApiUrl = (path: string, query?: Record<string, string | number | boolean>): string => {
   const _path = path.startsWith('/') ? path : `/${path}`;
-  const queryString = new URLSearchParams(query).toString();
+  const _query: Record<string, string> | undefined = isNotEmpty(query)
+    ? JSON.parse(JSON.stringify(query))
+    : undefined;
+  const queryString = new URLSearchParams(_query).toString();
   return `${API_BASE_URL}${_path}${isNotEmpty(queryString) ? `?${queryString}` : ''}`;
 };
 

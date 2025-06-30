@@ -1,6 +1,7 @@
 export type * from './creatable-dto.js';
 export type * from './deletable-dto.js';
 export type * from './entity-dto.js';
+export type * from './icon-dto.js';
 export type * from './lockable-dto.js';
 export type * from './organization-dto.js';
 export type * from './source-file-dto.js';
