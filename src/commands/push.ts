@@ -15,7 +15,6 @@ import { readFile } from 'node:fs/promises';
 import { globby } from 'globby';
 import path from 'node:path';
 import { buildPushStatusTable } from '../utils/source-file-utils.js';
-// @ts-expect-error
 import pager from 'node-pager';
 
 class Push extends BaseCommand {
