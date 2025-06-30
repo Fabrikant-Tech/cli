@@ -128,8 +128,6 @@ class Push extends BaseCommand {
       deletePathsNotSpecified,
     });
 
-    await pager(table);
-
     let answer: 'yes' | 'no' | 'status' | undefined = undefined;
 
     while (answer !== 'yes') {
@@ -158,11 +156,16 @@ class Push extends BaseCommand {
       }
 
       if (answer === 'yes') {
-        const result = await pushSourceFiles({
+        ux.action.start(`Pushing files to ${getVersionDisplayName(version)}`);
+        await pushSourceFiles({
+          acceptTokensJson,
+          acceptIconSvgs,
+          deletePathsNotSpecified,
           versionId: version._id,
           token,
           sourceFiles: targetSourceFiles,
         });
+        ux.action.stop(constructive('✔'));
       }
     }
   }

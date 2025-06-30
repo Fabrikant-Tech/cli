@@ -233,6 +233,14 @@ type PushSourceFilesOptions = AuthenticatedRequestOptions & {
   acceptTokensJson?: boolean;
 
   /**
+   * Whether svg files in the `packages/core/assets/icon` directory should be accepted & persisted as `Icon` entities.
+   * Most of the time, icons will be managed in the UI by a designer, but this can be a useful escape-hatch for bulk-updating
+   * icons.
+   * @default false
+   */
+  acceptIconSvgs?: boolean;
+
+  /**
    * Whether any file paths that do not exist in the input should be deleted.
    * @default false
    */
@@ -250,11 +258,22 @@ type PushSourceFilesOptions = AuthenticatedRequestOptions & {
 };
 
 const pushSourceFiles = async (options: PushSourceFilesOptions) => {
-  const { token, versionId, sourceFiles } = options;
+  const {
+    token,
+    versionId,
+    sourceFiles,
+    acceptIconSvgs = false,
+    acceptTokensJson = false,
+    deletePathsNotSpecified = false,
+  } = options;
   const body = new FormData();
   body.append('versionId', versionId);
   const sourceFilesFile = new File([JSON.stringify(sourceFiles)], 'source-files.json');
   body.append('sourceFiles', sourceFilesFile);
+  body.append('acceptIconSvgs', acceptIconSvgs.toString());
+  body.append('acceptTokensJson', acceptTokensJson.toString());
+  body.append('deletePathsNotSpecified', deletePathsNotSpecified.toString());
+
   const response = await post('/source-files/push', {
     headers: getAuthorizationHeader(token),
     body,
