@@ -1,8 +1,14 @@
 import { Flags, ux } from '@oclif/core';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
-import { getNormalizedSourceFilesByVersion, listVersions, pushSourceFiles } from '../utils/api.js';
+import {
+  createVersion,
+  getNormalizedSourceFilesByVersion,
+  listVersions,
+  pushSourceFiles,
+} from '../utils/api.js';
 import { BaseCommand } from '../utils/base-command.js';
 import {
+  getVersionDescription,
   getVersionDisplayName,
   isVersionId,
   isVersionPublishingOrPublished,
@@ -15,7 +21,12 @@ import { readFile } from 'node:fs/promises';
 import { globby } from 'globby';
 import path from 'node:path';
 import { buildPushStatusTable } from '../utils/source-file-utils.js';
-import pager from 'node-pager';
+import type { SelectChoice } from '../types/select-choice.js';
+import { pager } from '../utils/pager.js';
+
+const CREATE_VERSION = 'create-version' as const;
+const EMPTY = 'empty' as const;
+const SEED = 'seed' as const;
 
 class Push extends BaseCommand {
   static args = {};
@@ -66,23 +77,70 @@ class Push extends BaseCommand {
       );
     }
 
-    const versions = await listVersions({ token });
+    let versions = await listVersions({ token });
 
     if (isEmpty(versionId)) {
-      const choices = versions
+      const choices: Array<SelectChoice<string>> = versions
         .filter((version) => !isVersionPublishingOrPublished(version))
-        .map((version) => {
-          return {
-            name: getVersionDisplayName(version),
-            description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
-            value: version._id,
-          };
-        });
+        .map((version) => ({
+          name: getVersionDisplayName(version),
+          description: getVersionDescription(version),
+          value: version._id,
+        }));
+
+      choices.unshift({
+        value: CREATE_VERSION,
+        name: 'Create new version',
+        description: 'Create a new version to push files to',
+      });
 
       versionId = await select({
         message: 'Select a version to push design system files to',
         choices,
       });
+    }
+
+    if (versionId === CREATE_VERSION) {
+      const choices: Array<SelectChoice<string>> = versions.map((version) => ({
+        name: getVersionDisplayName(version),
+        description: getVersionDescription(version),
+        value: version._id,
+      }));
+
+      choices.unshift({
+        value: SEED,
+        name: 'Create a version from seed',
+        description:
+          'Creates a new version from the seed source files and icons. No tokens will be created.',
+      });
+
+      choices.unshift({
+        value: EMPTY,
+        name: 'Create an empty version',
+        description:
+          'Creates a new version without copying any source files, tokens or icons from a previous version.',
+      });
+
+      const baseVersionId = (versionId = await select({
+        message: 'Select a base version to create a new version from',
+        choices,
+      }));
+
+      ux.action.start('Creating version');
+      const version = await createVersion({
+        baseVersionId:
+          baseVersionId === EMPTY || baseVersionId === SEED ? undefined : baseVersionId,
+        empty: baseVersionId === EMPTY,
+        token,
+      });
+      ux.action.stop(constructive('✔'));
+      this.log(
+        constructive(
+          `Successfully created ${primary(getVersionDisplayName(version))} ${primary(`(${version._id})`)}`
+        )
+      );
+      versionId = version._id;
+      versions.unshift(version);
     }
 
     const version = versions.find((version) => version._id === versionId);
