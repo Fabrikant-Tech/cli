@@ -15,9 +15,9 @@ import { BaseCommand } from '../utils/base-command.js';
 import path from 'node:path';
 import { cwd } from 'node:process';
 import { buildPullStatusTable } from '../utils/source-file-utils.js';
-import pager from 'node-pager';
 import { mkdir, writeFile } from 'node:fs/promises';
 import type { VersionDto } from '../types/index.js';
+import { pager } from '../utils/pager.js';
 
 class Pull extends BaseCommand {
   static args = {};
