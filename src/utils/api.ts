@@ -26,6 +26,50 @@ interface AuthenticatedRequestOptions {
 
 const JSON_CONTENT_TYPE_HEADER = { 'Content-Type': 'application/json' };
 
+type CreateVersionOptions = AuthenticatedRequestOptions &
+  (
+    | {
+        /**
+         * When true, no source files, tokens or icons will be created from the seed collection.
+         */
+        empty?: boolean;
+
+        /**
+         * Denotes that this version is not based off of an existing version. By default,
+         * this will create source files from the seed collection.
+         */
+        baseVersionId: undefined;
+      }
+    | {
+        /**
+         * Id of the version to create a new version from. This copies existing source files,
+         * tokens and icons over from the base version.
+         */
+        baseVersionId: string;
+      }
+  );
+
+const createVersion = async (options: CreateVersionOptions): Promise<VersionDto> => {
+  const { baseVersionId, token } = options;
+  const empty = 'empty' in options ? options.empty : undefined;
+
+  const response = await post('/system/versions', {
+    headers: getAuthorizationHeader(token),
+    body: {
+      base_version: baseVersionId,
+      empty,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw ApiError.fromResponseJson(error);
+  }
+
+  const version = (await response.json()) as VersionDto;
+  return version;
+};
+
 const login = async (options: LoginOptions): Promise<UserDto> => {
   const { email, password } = options;
   const response = await post('/users/login', { body: { email, password } });
@@ -298,7 +342,7 @@ const post = async (path: string, options: PostOptions): Promise<Response> => {
   const url = getApiUrl(path, query);
   let headers = { ...options.headers };
   if (!(options.body instanceof FormData)) {
-    headers = { ...JSON_CONTENT_TYPE_HEADER };
+    headers = { ...headers, ...JSON_CONTENT_TYPE_HEADER };
   }
 
   const body = options.body instanceof FormData ? options.body : JSON.stringify(options.body);
@@ -335,6 +379,7 @@ const getApiUrl = (path: string, query?: Record<string, string | number | boolea
 const getAuthorizationHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
 
 export {
+  createVersion,
   getCurrentUser,
   getNormalizedSourceFilesByVersion,
   getOrganization,

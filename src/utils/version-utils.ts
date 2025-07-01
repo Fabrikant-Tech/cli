@@ -17,6 +17,9 @@ const isVersionId = (version: string) => !isSemver(version) && version.length ==
 const getVersionDisplayName = (version: VersionDto): string =>
   isNotEmpty(version.publish_version) ? version.publish_version : `Draft ${version.number}`;
 
+const getVersionDescription = (version: VersionDto): string =>
+  `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`;
+
 const isVersionPublishingOrPublished = (version: VersionDto) =>
   isNotEmpty(version.published_at) ||
   version.publish_status === 'in_progress' ||
@@ -25,6 +28,7 @@ const isVersionPublishingOrPublished = (version: VersionDto) =>
 
 export {
   cleanSemver,
+  getVersionDescription,
   getVersionDisplayName,
   isSemver,
   isVersionId,

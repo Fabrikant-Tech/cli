@@ -6,6 +6,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
+    "strictNullChecks": true,
     "target": "es2022",
     "moduleResolution": "node16"
   },
