@@ -41,7 +41,7 @@ class Pull extends BaseCommand {
   };
 
   async run(): Promise<void> {
-    const { token, organization: organizationId } = await getCredentialsOrThrow();
+    const { token } = await getCredentialsOrThrow();
     const { flags } = await this.parse(Pull);
     const { force } = flags;
     const directory = path.resolve(cwd(), flags.directory);
