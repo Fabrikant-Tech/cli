@@ -2,6 +2,7 @@ import { Flags, ux } from '@oclif/core';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
 import {
   cleanSemver,
+  findVersionByIdOrSemver,
   getVersionDisplayName,
   isSemver,
   isVersionId,
@@ -48,34 +49,25 @@ class Pull extends BaseCommand {
     const versions = await listVersions({ token });
 
     let version: VersionDto | undefined = undefined;
-    let semanticVersion =
-      isNotEmpty(flags.version) && isSemver(flags.version) ? cleanSemver(flags.version) : undefined;
-    let versionId =
-      isNotEmpty(flags.version) && isVersionId(flags.version) ? flags.version : undefined;
+    let versionIdOrSemver: string | undefined = flags.version;
 
-    if (isEmpty(semanticVersion) && isEmpty(versionId)) {
+    if (isEmpty(versionIdOrSemver)) {
       const choices = versions.map((version) => ({
         name: getVersionDisplayName(version),
         description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
         value: version._id,
       }));
 
-      versionId = await select({
+      versionIdOrSemver = await select({
         message: 'Select a version to pull design system files from',
         choices,
       });
     }
 
-    if (isNotEmpty(semanticVersion)) {
-      version = versions.find((version) => version.publish_version === semanticVersion);
-    }
-
-    if (isNotEmpty(versionId)) {
-      version = versions.find((version) => version._id === versionId);
-    }
+    version = findVersionByIdOrSemver(versions, versionIdOrSemver);
 
     if (version === undefined) {
-      this.error(destructive(`Version '${semanticVersion ?? versionId}' not found.`));
+      this.error(destructive(`Version '${versionIdOrSemver}' not found.`));
     }
 
     ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);

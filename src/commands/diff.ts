@@ -104,7 +104,6 @@ class Diff extends BaseCommand {
       const formattedPatches = patches.map(formatPatch);
 
       await pager(formattedPatches.join('\n'));
-
       this.exit();
     }
 
