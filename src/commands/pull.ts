@@ -27,11 +27,13 @@ class Pull extends BaseCommand {
   static flags = {
     version: Flags.string({
       char: 'v',
+      helpValue: '<versionIdOrSemanticVersion>',
       description:
         'Id or published version number to pull files from. For example: v0.0.43, 0.0.43, or 66461c33e633cbb0adf030ab',
     }),
     directory: Flags.string({
       char: 'd',
+      helpValue: '<directory>',
       description: 'Directory to write source files to.',
       default: '.',
     }),

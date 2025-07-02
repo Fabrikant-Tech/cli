@@ -6,7 +6,7 @@ import { constructive, destructive, primary } from '../utils/colorize.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import { select } from '@inquirer/prompts';
 import { findVersionByIdOrSemver, getVersionDisplayName } from '../utils/version-utils.js';
-import { compact, isEmpty, isString } from 'lodash-es';
+import { compact, isEmpty } from 'lodash-es';
 import type { VersionDto } from '../types/index.js';
 import { globby } from 'globby';
 import path from 'node:path';
@@ -16,8 +16,6 @@ import { filterNormalizedSourceFiles, normalizeSourceFiles } from '../utils/sour
 import type { StructuredPatch } from 'diff';
 import { structuredPatch } from 'diff';
 import { pager } from '../utils/pager.js';
-import { Errors } from '@oclif/core';
-import type { CommandError } from '@oclif/core/interfaces';
 
 class Diff extends BaseCommand {
   static args = {
@@ -32,11 +30,40 @@ class Diff extends BaseCommand {
    */
   static strict = false;
 
-  static description = 'Diff file(s) between two versions';
-  static examples = [];
+  static description = 'Diff files between two versions';
+  static examples = [
+    {
+      command: '<%= config.bin %> <%= command.id %> --from 0.0.1 --to 0.0.2',
+      description: 'Diffs files between published versions 0.0.1 <> 0.0.2.',
+    },
+    {
+      command: '<%= config.bin %> <%= command.id %> --from 0.0.1 --to 66461c33e633cbb0adf030ab',
+      description:
+        'Diffs files between published version 0.0.1 <> version id 66461c33e633cbb0adf030ab, which may be published or unpublished.',
+    },
+    {
+      command: '<%= config.bin %> <%= command.id %> --from 0.0.1 --to 0.0.2 tokens.json',
+      description: 'Diffs the tokens.json file between published versions 0.0.1 <> 0.0.2.',
+    },
+    {
+      command:
+        '<%= config.bin %> <%= command.id %> --from 0.0.1 --to 0.0.2 "packages/core/src/**/*.tsx" "packages/core/**/*.md"',
+      description:
+        'Diffs matching tsx and md file paths between published versions 0.0.1 <> 0.0.2.',
+    },
+    {
+      command: '<%= config.bin %> <%= command.id %> --version 0.0.1',
+      description: 'Diffs local files in the current directory <> published version 0.0.1.',
+    },
+    {
+      command: '<%= config.bin %> <%= command.id %> --version 0.0.1 tokens.json',
+      description: 'Diffs local tokens.json file <> published version 0.0.1.',
+    },
+  ];
   static flags = {
     from: Flags.string({
       char: 'f',
+      helpValue: '<versionIdOrSemanticVersion>',
       description:
         'Id or published version number to diff files from. For example: v0.0.42, 0.0.42, or 66461c33e633cbb0adf030ab',
       exclusive: ['directory', 'version'],
@@ -44,6 +71,7 @@ class Diff extends BaseCommand {
     }),
     to: Flags.string({
       char: 't',
+      helpValue: '<versionIdOrSemanticVersion>',
       description:
         'Id or published version number to diff files against. For example: v0.0.43, 0.0.43, or 66461c33e633cbb0adf030ab',
       exclusive: ['directory', 'version'],
@@ -51,14 +79,16 @@ class Diff extends BaseCommand {
     }),
     directory: Flags.string({
       char: 'd',
+      helpValue: '<directory>',
       description: 'Directory to read source files from.',
       default: '.',
       exclusive: ['from', 'to'],
     }),
     version: Flags.string({
       char: 'v',
+      helpValue: '<versionIdOrSemanticVersion>',
       description:
-        'Id or published version number to diff files. For example: v0.0.43, 0.0.43, or 66461c33e633cbb0adf030ab',
+        'Id or published version number to diff against local files. For example: v0.0.43, 0.0.43, or 66461c33e633cbb0adf030ab',
       exclusive: ['from', 'to'],
     }),
   };

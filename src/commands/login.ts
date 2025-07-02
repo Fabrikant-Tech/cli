@@ -6,10 +6,7 @@ import { constructive, destructive, primary, warning } from '../utils/colorize.j
 import { BaseCommand } from '../utils/base-command.js';
 
 class Login extends BaseCommand {
-  static args = {};
   static description = 'Authenticate with the Designbase app';
-  static examples = [];
-  static flags = {};
 
   async run(): Promise<void> {
     const token = await readCredentialsFile();
