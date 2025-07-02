@@ -54,13 +54,11 @@ class Pull extends BaseCommand {
       isNotEmpty(flags.version) && isVersionId(flags.version) ? flags.version : undefined;
 
     if (isEmpty(semanticVersion) && isEmpty(versionId)) {
-      const choices = versions.map((version) => {
-        return {
-          name: getVersionDisplayName(version),
-          description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
-          value: version._id,
-        };
-      });
+      const choices = versions.map((version) => ({
+        name: getVersionDisplayName(version),
+        description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
+        value: version._id,
+      }));
 
       versionId = await select({
         message: 'Select a version to pull design system files from',
