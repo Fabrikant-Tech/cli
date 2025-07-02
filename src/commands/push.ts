@@ -48,15 +48,18 @@ class Push extends BaseCommand {
     }),
     directory: Flags.string({
       char: 'd',
+      helpValue: '<directory>',
       description: 'Directory to read source files from.',
       default: '.',
     }),
     exclude: Flags.string({
+      helpValue: '<globPatternOrPath>',
       char: 'e',
       description: `Glob pattern to exclude from pushing. For example, ${primary('designbase push --exclude "**/*.md"')} would recursively exclude any markdown files.`,
       multiple: true,
     }),
     versionId: Flags.string({
+      helpValue: '<versionId>',
       char: 'v',
       description: `Id to push files to. For example: ${primary('66461c33e633cbb0adf030ab')}. Published version numbers are not accepted because published versions cannot be modified.`,
     }),

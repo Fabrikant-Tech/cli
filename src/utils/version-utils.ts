@@ -26,8 +26,28 @@ const isVersionPublishingOrPublished = (version: VersionDto) =>
   version.publish_status === 'queued' ||
   version.publish_status === 'published';
 
+const findVersionByIdOrSemver = (
+  versions: VersionDto[],
+  idOrSemanticVersion: string | undefined
+): VersionDto | undefined => {
+  if (idOrSemanticVersion === undefined) {
+    return undefined;
+  }
+
+  if (isVersionId(idOrSemanticVersion)) {
+    const id = idOrSemanticVersion;
+    return versions.find((version) => version._id === id);
+  }
+
+  if (isSemver(idOrSemanticVersion)) {
+    const semanticVersion = cleanSemver(idOrSemanticVersion);
+    return versions.find((version) => version.publish_version === semanticVersion);
+  }
+};
+
 export {
   cleanSemver,
+  findVersionByIdOrSemver,
   getVersionDescription,
   getVersionDisplayName,
   isSemver,

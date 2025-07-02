@@ -1,4 +1,4 @@
-import { input, password as passwordPrompt, confirm } from '@inquirer/prompts';
+import { input, password as passwordInput, confirm } from '@inquirer/prompts';
 import { getCurrentUser, login } from '../utils/api.js';
 import { readCredentialsFile, writeCredentialsFile } from '../utils/auth-utils.js';
 import { isExitPromptError } from '../utils/errors.js';
@@ -6,10 +6,7 @@ import { constructive, destructive, primary, warning } from '../utils/colorize.j
 import { BaseCommand } from '../utils/base-command.js';
 
 class Login extends BaseCommand {
-  static args = {};
   static description = 'Authenticate with the Designbase app';
-  static examples = [];
-  static flags = {};
 
   async run(): Promise<void> {
     const token = await readCredentialsFile();
@@ -33,7 +30,7 @@ class Login extends BaseCommand {
 
     try {
       const email = await input({ message: 'Email:' });
-      const password = await passwordPrompt({ message: 'Password:', mask: true });
+      const password = await passwordInput({ message: 'Password:', mask: true });
 
       const user = await login({ email, password });
       if (user.token === undefined) {

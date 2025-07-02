@@ -2,6 +2,7 @@ import { Flags, ux } from '@oclif/core';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
 import {
   cleanSemver,
+  findVersionByIdOrSemver,
   getVersionDisplayName,
   isSemver,
   isVersionId,
@@ -26,11 +27,13 @@ class Pull extends BaseCommand {
   static flags = {
     version: Flags.string({
       char: 'v',
+      helpValue: '<versionIdOrSemanticVersion>',
       description:
         'Id or published version number to pull files from. For example: v0.0.43, 0.0.43, or 66461c33e633cbb0adf030ab',
     }),
     directory: Flags.string({
       char: 'd',
+      helpValue: '<directory>',
       description: 'Directory to write source files to.',
       default: '.',
     }),
@@ -41,43 +44,32 @@ class Pull extends BaseCommand {
   };
 
   async run(): Promise<void> {
-    const { token, organization: organizationId } = await getCredentialsOrThrow();
+    const { token } = await getCredentialsOrThrow();
     const { flags } = await this.parse(Pull);
     const { force } = flags;
     const directory = path.resolve(cwd(), flags.directory);
     const versions = await listVersions({ token });
 
     let version: VersionDto | undefined = undefined;
-    let semanticVersion =
-      isNotEmpty(flags.version) && isSemver(flags.version) ? cleanSemver(flags.version) : undefined;
-    let versionId =
-      isNotEmpty(flags.version) && isVersionId(flags.version) ? flags.version : undefined;
+    let versionIdOrSemver: string | undefined = flags.version;
 
-    if (isEmpty(semanticVersion) && isEmpty(versionId)) {
-      const choices = versions.map((version) => {
-        return {
-          name: getVersionDisplayName(version),
-          description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
-          value: version._id,
-        };
-      });
+    if (isEmpty(versionIdOrSemver)) {
+      const choices = versions.map((version) => ({
+        name: getVersionDisplayName(version),
+        description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
+        value: version._id,
+      }));
 
-      versionId = await select({
+      versionIdOrSemver = await select({
         message: 'Select a version to pull design system files from',
         choices,
       });
     }
 
-    if (isNotEmpty(semanticVersion)) {
-      version = versions.find((version) => version.publish_version === semanticVersion);
-    }
-
-    if (isNotEmpty(versionId)) {
-      version = versions.find((version) => version._id === versionId);
-    }
+    version = findVersionByIdOrSemver(versions, versionIdOrSemver);
 
     if (version === undefined) {
-      this.error(destructive(`Version '${semanticVersion ?? versionId}' not found.`));
+      this.error(destructive(`Version '${versionIdOrSemver}' not found.`));
     }
 
     ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);

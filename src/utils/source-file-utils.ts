@@ -242,4 +242,22 @@ const normalizeSourceFiles = (
     {}
   );
 
-export { buildPullStatusTable, buildPushStatusTable, normalizeSourceFiles };
+const filterNormalizedSourceFiles = (
+  sourceFiles: Record<string, string>,
+  patterns: string[]
+): Record<string, string> => {
+  const paths = Object.keys(sourceFiles);
+  const filteredPaths = multimatch(paths, patterns);
+  const filteredSourceFiles = Object.fromEntries(
+    filteredPaths.map((path) => [path, sourceFiles[path]])
+  );
+
+  return filteredSourceFiles;
+};
+
+export {
+  buildPullStatusTable,
+  buildPushStatusTable,
+  filterNormalizedSourceFiles,
+  normalizeSourceFiles,
+};

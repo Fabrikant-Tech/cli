@@ -5,10 +5,7 @@ import { primary, warning } from '../utils/colorize.js';
 import { BaseCommand } from '../utils/base-command.js';
 
 class WhoAmI extends BaseCommand {
-  static args = {};
   static description = 'Check your authentication status';
-  static examples = [];
-  static flags = {};
 
   async run(): Promise<void> {
     const token = await readCredentialsFile();

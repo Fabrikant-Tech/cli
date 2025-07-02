@@ -233,24 +233,28 @@ const getNormalizedSourceFilesByVersion = async (
   sourceFiles = { ...sourceFiles, ...normalizeSourceFiles(_sourceFiles) };
 
   const tokens = await getTokensAsJson({ versionId, token });
-  sourceFiles = { ...sourceFiles, 'tokens.json': JSON.stringify(tokens) };
+  sourceFiles = { ...sourceFiles, 'tokens.json': JSON.stringify(tokens, undefined, 4) };
 
   const organization = await getOrganization({ token, id: organizationId });
   sourceFiles = {
     ...sourceFiles,
-    'meta.json': JSON.stringify({
-      meta: {
-        $type: 'meta',
-        $value: {
-          namespace: organization.namespace,
-          prefix: organization.prefix,
-          npm: {
-            org: organization.name.toLowerCase(),
-            packageSuffix: organization.namespace.toLowerCase(),
+    'meta.json': JSON.stringify(
+      {
+        meta: {
+          $type: 'meta',
+          $value: {
+            namespace: organization.namespace,
+            prefix: organization.prefix,
+            npm: {
+              org: organization.name.toLowerCase(),
+              packageSuffix: organization.namespace.toLowerCase(),
+            },
           },
         },
       },
-    }),
+      undefined,
+      4
+    ),
   };
 
   const icons = await listIcons({ versionId, token, includeData: true });
