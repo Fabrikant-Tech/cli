@@ -101,7 +101,9 @@ class Diff extends BaseCommand {
       const targetSourceFiles = filterNormalizedSourceFiles(_targetSourceFiles, paths);
 
       const patches = buildDiffPatches(sourceSourceFiles, targetSourceFiles);
-      const formattedPatches = patches.map(formatPatch);
+      const formattedPatches = patches.map((patch) =>
+        formatPatch(getVersionDisplayName(fromVersion), getVersionDisplayName(toVersion), patch)
+      );
 
       await pager(formattedPatches.join('\n'));
       this.exit();
@@ -147,7 +149,9 @@ class Diff extends BaseCommand {
     ux.action.stop(constructive('✔'));
 
     const patches = buildDiffPatches(sourceSourceFiles, targetSourceFiles);
-    const formattedPatches = patches.map(formatPatch);
+    const formattedPatches = patches.map((patch) =>
+      formatPatch(directory, getVersionDisplayName(version), patch)
+    );
 
     await pager(formattedPatches.join('\n'));
   }
@@ -170,9 +174,17 @@ const buildDiffPatches = (
   return compact(patches);
 };
 
-const formatPatch = (patch: StructuredPatch): string => {
+const formatPatch = (
+  sourceVersion: string,
+  targetVersion: string,
+  patch: StructuredPatch
+): string => {
   let lines: string[] = [];
-  lines = [...lines, `---a/${patch.oldFileName}`, `+++b/${patch.newFileName}`];
+  lines = [
+    ...lines,
+    `---${sourceVersion}/${patch.oldFileName}`,
+    `+++${targetVersion}/${patch.newFileName}`,
+  ];
   lines = lines.concat(
     patch.hunks.flatMap((hunk) => [
       /**
