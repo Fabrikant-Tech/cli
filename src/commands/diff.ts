@@ -52,6 +52,7 @@ class Diff extends BaseCommand {
 
   async run(): Promise<void> {
     const { flags, argv } = await this.parse(Diff);
+    const paths = isEmpty(argv) ? ['**/*'] : (argv as string[]);
     const directory = path.resolve(cwd(), flags.directory);
     const { token } = await getCredentialsOrThrow();
     const versions = await listVersions({ token });
@@ -87,7 +88,7 @@ class Diff extends BaseCommand {
       this.error(destructive(`Version '${semanticVersion ?? versionId}' not found.`));
     }
 
-    const filePaths = await globby(['**/*', '!node_modules', '!dist', '!build'], {
+    const filePaths = await globby([...paths, '!node_modules', '!dist', '!build'], {
       cwd: directory,
     });
     const sourceSourceFiles = normalizeSourceFiles(
