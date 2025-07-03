@@ -39,6 +39,7 @@ const isApiError = (error: unknown): error is ApiError => error instanceof ApiEr
 const isExitPromptError = (error: unknown) =>
   error instanceof Error && error.name === 'ExitPromptError';
 
-const isExitError = (error: unknown) => error instanceof ExitError;
+const isExitError = (error: unknown) =>
+  error instanceof Error && 'code' in error && error.code === 'EEXIT';
 
 export { ApiError, isApiError, isExitError, isExitPromptError };
