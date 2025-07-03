@@ -15,7 +15,7 @@ import {
 } from '../utils/version-utils.js';
 import { select } from '@inquirer/prompts';
 import { isEmpty } from 'lodash-es';
-import { destructive } from '../utils/colorize.js';
+import { constructive, destructive, primary } from '../utils/colorize.js';
 import { pager } from '../utils/pager.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
 import type { Socket } from 'socket.io-client';
@@ -96,17 +96,18 @@ class Logs extends BaseCommand {
     if (isNotEmpty(version.publish_job_output)) {
       version.publish_job_output.forEach((output) => {
         if (output.type === 'stdout') {
-          this.log(output.value.trim());
+          this.log(output.value);
         }
 
         if (output.type === 'stderr') {
-          this.logToStderr(output.value.trim());
+          this.logToStderr(output.value);
         }
       });
     }
 
     if (isEmpty(version.publish_job_output)) {
       this.log(`${destructive('✗')} No logs found, listening for entries...`);
+      this.log(`${primary('‣')} Publish status: ${version.publish_status}`);
     }
 
     socket.on('version:update', (event) => {
@@ -114,19 +115,25 @@ class Logs extends BaseCommand {
         if (key.startsWith('publish_job_output')) {
           const output = value as unknown as PublishJobOutput;
           if (output.type === 'stdout') {
-            this.log(output.value.trim());
+            this.log(output.value);
           }
 
           if (output.type === 'stderr') {
-            this.logToStderr(output.value.trim());
+            this.logToStderr(output.value);
           }
         }
 
+        if (key === 'publish_status' && value !== 'error' && value !== 'published') {
+          this.log(`${primary('‣')} Publish status: ${value}`);
+        }
+
         if (key === 'publish_status' && value === 'error') {
+          this.log(`${destructive('✗')} Publish status: ${value}`);
           this.exit(1);
         }
 
         if (key === 'publish_status' && value === 'published') {
+          this.log(`${constructive('✔')} Publish status: ${value}`);
           this.exit();
         }
       });
