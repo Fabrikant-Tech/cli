@@ -121,6 +121,14 @@ class Logs extends BaseCommand {
             this.logToStderr(output.value.trim());
           }
         }
+
+        if (key === 'publish_status' && value === 'error') {
+          this.exit(1);
+        }
+
+        if (key === 'publish_status' && value === 'published') {
+          this.exit();
+        }
       });
     });
   }
