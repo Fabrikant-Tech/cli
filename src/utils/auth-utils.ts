@@ -1,7 +1,7 @@
 import path from 'node:path';
 import os from 'node:os';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { primary } from './colorize.js';
+import { destructive, primary } from './colorize.js';
 import { getCurrentUser } from './api.js';
 import { isApiError } from './errors.js';
 import type { UserDto } from '../types/index.js';
@@ -39,7 +39,9 @@ const getCredentialsOrThrow = async (): Promise<Omit<UserDto, 'token'> & { token
     }
 
     throw new Error(
-      `Unable to verify authentication status. Run ${primary('designbase login')} to re-authenticate, or contact us at help@designbase.com if the problem persists.`
+      destructive(
+        `Unable to verify authentication status. Run ${primary('designbase login')} to re-authenticate, or contact us at help@designbase.com if the problem persists.`
+      )
     );
   }
 };
