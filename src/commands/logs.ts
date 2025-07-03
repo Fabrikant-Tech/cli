@@ -96,11 +96,11 @@ class Logs extends BaseCommand {
     if (isNotEmpty(version.publish_job_output)) {
       version.publish_job_output.forEach((output) => {
         if (output.type === 'stdout') {
-          this.log(output.value.trim());
+          this.log(output.value);
         }
 
         if (output.type === 'stderr') {
-          this.logToStderr(output.value.trim());
+          this.logToStderr(output.value);
         }
       });
     }
@@ -114,11 +114,11 @@ class Logs extends BaseCommand {
         if (key.startsWith('publish_job_output')) {
           const output = value as unknown as PublishJobOutput;
           if (output.type === 'stdout') {
-            this.log(output.value.trim());
+            this.log(output.value);
           }
 
           if (output.type === 'stderr') {
-            this.logToStderr(output.value.trim());
+            this.logToStderr(output.value);
           }
         }
 
