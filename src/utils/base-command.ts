@@ -1,9 +1,9 @@
-import { Command } from '@oclif/core';
-import { isExitPromptError } from './errors.js';
+import { Command, Errors } from '@oclif/core';
+import { isExitError, isExitPromptError } from './errors.js';
 
 abstract class BaseCommand extends Command {
   async catch(error: Error & { exitCode?: number | undefined }): Promise<void> {
-    if (isExitPromptError(error)) {
+    if (isExitPromptError(error) || isExitError(error)) {
       return;
     }
 
