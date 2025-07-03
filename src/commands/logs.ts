@@ -106,11 +106,10 @@ class Logs extends BaseCommand {
     }
 
     if (isEmpty(version.publish_job_output)) {
-      this.log('No logs found, listening for entries.');
+      this.log(`${destructive('✗')} No logs found, listening for entries...`);
     }
 
     socket.on('version:update', (event) => {
-      this.log('event', event);
       Object.entries(event.updatedFields ?? {}).forEach(([key, value]) => {
         if (key.startsWith('publish_job_output')) {
           const output = value as unknown as PublishJobOutput;
