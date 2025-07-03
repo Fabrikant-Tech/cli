@@ -101,6 +101,32 @@ const getCurrentUser = async (options: GetCurrentUserOptions) => {
   return user;
 };
 
+type GetVersionOptions = AuthenticatedRequestOptions & {
+  id: string;
+  includeOutput?: boolean;
+  sanitizeOutput?: boolean;
+};
+
+const getVersion = async (options: GetVersionOptions): Promise<VersionDto> => {
+  const { token, id, includeOutput = false, sanitizeOutput = false } = options;
+  const response = await get(`/system/versions/${id}`, {
+    headers: getAuthorizationHeader(token),
+    query: {
+      includeStdout: true,
+      includeOutput,
+      sanitizeOutput,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw ApiError.fromResponseJson(error);
+  }
+
+  const version = (await response.json()) as VersionDto;
+  return version;
+};
+
 type ListVersionsOptions = AuthenticatedRequestOptions;
 
 const listVersions = async (options: ListVersionsOptions): Promise<VersionDto[]> => {
@@ -388,6 +414,7 @@ export {
   getNormalizedSourceFilesByVersion,
   getOrganization,
   getTokensAsJson,
+  getVersion,
   listSourceFiles,
   listVersions,
   login,
