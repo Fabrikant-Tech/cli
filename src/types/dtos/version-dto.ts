@@ -47,4 +47,4 @@ interface PublishJobOutput {
   value: string;
 }
 
-export type { VersionDto };
+export type { PublishJobOutput, VersionDto };

@@ -2,7 +2,12 @@ import { Flags } from '@oclif/core';
 import { BaseCommand } from '../utils/base-command.js';
 import { getCredentialsOrThrow } from '../utils/auth-utils.js';
 import { getVersion, listVersions } from '../utils/api.js';
-import type { VersionDto } from '../types/index.js';
+import type {
+  ClientSocketToServerEvents,
+  PublishJobOutput,
+  ServerSocketToClientEvents,
+  VersionDto,
+} from '../types/index.js';
 import {
   findVersionByIdOrSemver,
   getVersionDescription,
@@ -13,6 +18,9 @@ import { isEmpty } from 'lodash-es';
 import { destructive } from '../utils/colorize.js';
 import { pager } from '../utils/pager.js';
 import { isNotEmpty } from '../utils/collection-utils.js';
+import type { Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
+import { API_BASE_URL } from '../utils/config.js';
 
 class Logs extends BaseCommand {
   static description = 'View publishing logs for a design system version';
@@ -65,11 +73,57 @@ class Logs extends BaseCommand {
       token,
     });
 
-    const output = isNotEmpty(version.publish_job_stdout)
-      ? version.publish_job_stdout.join('\n')
-      : (version.publish_job_output ?? []).map((output) => output.value).join('\n');
+    const output = (version.publish_job_output ?? []).map((output) => output.value).join('\n');
 
-    await pager(output);
+    if (version.publish_status === 'published') {
+      await pager(output);
+      this.exit();
+    }
+
+    /**
+     * @see https://socket.io/docs/v4/typescript/#types-for-the-client
+     */
+    const socket: Socket<ServerSocketToClientEvents, ClientSocketToServerEvents> = io(
+      API_BASE_URL,
+      {
+        withCredentials: true,
+        auth: { token },
+        query: { versionId: version._id },
+        transports: ['websocket'],
+      }
+    );
+
+    if (isNotEmpty(version.publish_job_output)) {
+      version.publish_job_output.forEach((output) => {
+        if (output.type === 'stdout') {
+          this.log(output.value.trim());
+        }
+
+        if (output.type === 'stderr') {
+          this.logToStderr(output.value.trim());
+        }
+      });
+    }
+
+    if (isEmpty(version.publish_job_output)) {
+      this.log('No logs found, listening for entries.');
+    }
+
+    socket.on('version:update', (event) => {
+      this.log('event', event);
+      Object.entries(event.updatedFields ?? {}).forEach(([key, value]) => {
+        if (key.startsWith('publish_job_output')) {
+          const output = value as unknown as PublishJobOutput;
+          if (output.type === 'stdout') {
+            this.log(output.value.trim());
+          }
+
+          if (output.type === 'stderr') {
+            this.logToStderr(output.value.trim());
+          }
+        }
+      });
+    });
   }
 }
 
