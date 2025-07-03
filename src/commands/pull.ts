@@ -3,6 +3,7 @@ import { getCredentialsOrThrow } from '../utils/auth-utils.js';
 import {
   cleanSemver,
   findVersionByIdOrSemver,
+  getVersionDescription,
   getVersionDisplayName,
   isSemver,
   isVersionId,
@@ -56,7 +57,7 @@ class Pull extends BaseCommand {
     if (isEmpty(versionIdOrSemver)) {
       const choices = versions.map((version) => ({
         name: getVersionDisplayName(version),
-        description: `Id: ${version._id}${isNotEmpty(version.published_at) ? ` | Published on ${new Date(version.published_at).toLocaleString()}` : ' | Unpublished'}`,
+        description: getVersionDescription(version),
         value: version._id,
       }));
 

@@ -23,6 +23,12 @@ interface VersionDto {
     | 'waiting-children';
   publish_job_stderr?: string[];
   publish_job_stdout?: string[];
+
+  /**
+   * Unified output logs from the publish job.
+   */
+  publish_job_output?: PublishJobOutput[];
+
   /**
    * Timestamp when the publish started for the version. Not populated on older versions since we weren't tracking it.
    */
@@ -35,4 +41,10 @@ interface VersionDto {
   published_at?: string;
 }
 
-export type { VersionDto };
+interface PublishJobOutput {
+  type: 'stdout' | 'stderr';
+  timestamp: number;
+  value: string;
+}
+
+export type { PublishJobOutput, VersionDto };
