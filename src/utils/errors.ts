@@ -1,3 +1,5 @@
+import type { ExitError } from '@oclif/core/errors';
+
 class ApiError extends Error {
   public status: number;
   public code: string;
@@ -37,7 +39,7 @@ const isApiError = (error: unknown): error is ApiError => error instanceof ApiEr
 const isExitPromptError = (error: unknown) =>
   isNonArrayObject(error) && 'name' in error && error.name === 'ExitPromptError';
 
-const isExitError = (error: unknown) =>
+const isExitError = (error: unknown): error is ExitError =>
   isNonArrayObject(error) && 'code' in error && error.code === 'EEXIT';
 
 const isNonArrayObject = (error: unknown): error is object =>
