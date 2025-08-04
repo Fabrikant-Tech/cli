@@ -28,6 +28,17 @@ const CREATE_VERSION = 'create-version' as const;
 const EMPTY = 'empty' as const;
 const SEED = 'seed' as const;
 
+const DEFAULT_EXCLUDED_DIRECTORIES = [
+  'node_modules',
+  'dist',
+  'build',
+  'out',
+  '.git',
+  '.turbo',
+  '.docusaurus',
+  '.stencil',
+];
+
 class Push extends BaseCommand {
   static args = {};
   static description = 'Push design system files to Designbase';
@@ -158,9 +169,15 @@ class Push extends BaseCommand {
 
     const resolvedDirectory = path.resolve(directory);
     const filePaths = await globby(
-      ['**/*', '!node_modules', '!dist', '!build', ...additionalExcludes],
+      [
+        '**/*',
+        `!{${DEFAULT_EXCLUDED_DIRECTORIES.join(',')}}`,
+        `!**/*/{${DEFAULT_EXCLUDED_DIRECTORIES.join(',')}}`,
+        ...additionalExcludes,
+      ],
       {
         cwd: resolvedDirectory,
+        dot: true,
       }
     );
 
