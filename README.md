@@ -4,23 +4,10 @@ This CLI provides additional ways to interact with Designbase services that can 
 
 ## Installation
 
-The CLI is not yet distributed via any package managers like `npm` or `brew`. For now, you'll need to pull and build it from source.
+This CLI is currently distributed via `npm`. We recommend installing it globally so you can call it from any directory.
 
 ```sh
-# Clone the repository and navigate to it
-git clone git@github.com:Fabrikant-Tech/cli.git && cd cli
-
-# Ensure you're using the right node version
-nvm use
-
-# Install dependencies required to run the cli
-npm i
-
-# Run a production build
-npm run build
-
-# Install the CLI globally so it is available in your path
-npm i -g .
+npm i -g @designbase/cli
 
 # Verify it works
 designbase
@@ -93,6 +80,35 @@ USAGE
 ```
 
 ## Advanced
+
+### Building from source for local development
+
+For local development, follow the instructions below to clone the repo, install dependencies and run a build. After the CLI is built and installed globally, you can run `npm run build:watch` in another tab to easily test changes.
+
+```sh
+# Clone the repository and navigate to it
+git clone git@github.com:Fabrikant-Tech/cli.git && cd cli
+
+# Ensure you're using the right node version
+nvm use
+
+# Install dependencies required to run the cli
+npm i
+
+# Run a production build
+npm run build
+
+# Install the CLI globally so it is available in your path
+npm i -g .
+
+# Verify it works
+designbase
+
+# You can also double check that you're pointing to the local version of the CLI
+# If it's pointing to your local version instead of a version from npm, you should see a referenced directory
+# For example: └── @designbase/cli@0.0.1 -> ./../../../../../cli
+npm ls -g @designbase/cli
+```
 
 ### Specifying the API base url
 
