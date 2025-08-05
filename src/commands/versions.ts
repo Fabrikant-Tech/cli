@@ -67,10 +67,10 @@ class Versions extends BaseCommand {
           'Creates a new version without copying any source files, tokens or icons from a previous version.',
       });
 
-      const baseVersionId = (versionId = await select({
+      const baseVersionId = await select({
         message: 'Select a base version to create a new version from',
         choices,
-      }));
+      });
 
       ux.action.start('Creating version');
       const version = await createVersion({
