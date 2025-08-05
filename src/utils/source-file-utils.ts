@@ -71,12 +71,12 @@ interface BuildPushStatusTableOptions {
   /**
    * Collection of existing source files for the version
    */
-  sourceSourceFiles: Record<string, string>;
+  remoteSourceFiles: Record<string, string>;
 
   /**
    * Collection of source files proposed for updating
    */
-  targetSourceFiles: Array<Pick<SourceFileDto, 'content' | 'path'>>;
+  localSourceFiles: Array<Pick<SourceFileDto, 'content' | 'path'>>;
 
   /**
    * Whether the `tokens.json` file should be accepted & persisted as `Token` entities. Most of the time,
@@ -110,21 +110,21 @@ interface BuildPushStatusTableResult {
 }
 
 const buildPushStatusTable = (options: BuildPushStatusTableOptions): BuildPushStatusTableResult => {
-  const { sourceSourceFiles, acceptIconSvgs, acceptTokensJson, deletePathsNotSpecified } = options;
+  const { remoteSourceFiles, acceptIconSvgs, acceptTokensJson, deletePathsNotSpecified } = options;
   const headers: Header[] = [
     { value: 'Path', align: 'left', headerAlign: 'center' },
     { value: 'Diff', align: 'center' },
     { value: 'Status', align: 'center' },
   ];
 
-  const targetSourceFiles = normalizeSourceFiles(options.targetSourceFiles);
-  const sourcedSourceFilePaths = sortBy(Object.keys(sourceSourceFiles));
-  const sortedTargetFilePaths = sortBy(Object.keys(targetSourceFiles));
+  const localSourceFiles = normalizeSourceFiles(options.localSourceFiles);
+  const sourcedSourceFilePaths = sortBy(Object.keys(remoteSourceFiles));
+  const sortedTargetFilePaths = sortBy(Object.keys(localSourceFiles));
 
   const filePathDiffs = sortBy(
     uniq([...sortedTargetFilePaths, ...sourcedSourceFilePaths]).map((filePath) => {
-      const source = sourceSourceFiles[filePath] ?? '';
-      const target = targetSourceFiles[filePath] ?? '';
+      const source = remoteSourceFiles[filePath] ?? '';
+      const target = localSourceFiles[filePath] ?? '';
 
       const diff = diffLines(source, target);
       return { path: filePath, diff };
@@ -137,17 +137,17 @@ const buildPushStatusTable = (options: BuildPushStatusTableOptions): BuildPushSt
     let status = 'Unmodified';
     const formattedDiff = formatDiff(diff);
 
-    if (!isUnmodified(diff) && filePath in sourceSourceFiles && filePath in targetSourceFiles) {
+    if (!isUnmodified(diff) && filePath in remoteSourceFiles && filePath in localSourceFiles) {
       colorizer = warning;
       status = 'Modified';
     }
 
-    if (!isUnmodified(diff) && !(filePath in sourceSourceFiles)) {
+    if (!isUnmodified(diff) && !(filePath in remoteSourceFiles)) {
       colorizer = constructive;
       status = 'Added';
     }
 
-    if (!isUnmodified(diff) && filePath in sourceSourceFiles && !(filePath in targetSourceFiles)) {
+    if (!isUnmodified(diff) && filePath in remoteSourceFiles && !(filePath in localSourceFiles)) {
       if (deletePathsNotSpecified !== true) {
         colorizer = neutral;
         status = 'Ignored because --deletePathsNotSpecified was not provided';
