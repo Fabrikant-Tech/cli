@@ -161,7 +161,7 @@ class Diff extends BaseCommand {
     const filePaths = await globby([...paths, '!node_modules', '!dist', '!build'], {
       cwd: directory,
     });
-    const sourceSourceFiles = normalizeSourceFiles(
+    const localSourceFiles = normalizeSourceFiles(
       await Promise.all(
         filePaths.map(async (filePath) => {
           const resolvedFilePath = path.resolve(directory, filePath);
@@ -172,15 +172,15 @@ class Diff extends BaseCommand {
     );
 
     ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);
-    const targetSourceFiles = await getNormalizedSourceFilesByVersion({
+    const remoteSourceFiles = await getNormalizedSourceFilesByVersion({
       token,
       versionId: version._id,
     });
     ux.action.stop(constructive('✔'));
 
-    const patches = buildDiffPatches(sourceSourceFiles, targetSourceFiles);
+    const patches = buildDiffPatches(remoteSourceFiles, localSourceFiles);
     const formattedPatches = patches.map((patch) =>
-      formatPatch(directory, getVersionDisplayName(version), patch)
+      formatPatch(getVersionDisplayName(version), directory, patch)
     );
 
     await pager(formattedPatches.join('\n'));
@@ -188,11 +188,11 @@ class Diff extends BaseCommand {
 }
 
 const buildDiffPatches = (
-  sourceSourceFiles: Record<string, string>,
-  targetSourceFiles: Record<string, string>
+  remoteSourceFiles: Record<string, string>,
+  localSourceFiles: Record<string, string>
 ) => {
-  const patches = Object.entries(sourceSourceFiles).map(([path, content]) => {
-    const targetContent = targetSourceFiles[path] ?? '';
+  const patches = Object.entries(remoteSourceFiles).map(([path, content]) => {
+    const targetContent = localSourceFiles[path] ?? '';
     const patch = structuredPatch(path, path, content, targetContent);
     if (isEmpty(patch.hunks)) {
       return undefined;
@@ -205,15 +205,15 @@ const buildDiffPatches = (
 };
 
 const formatPatch = (
-  sourceVersion: string,
-  targetVersion: string,
+  remoteVersion: string,
+  localVersion: string,
   patch: StructuredPatch
 ): string => {
   let lines: string[] = [];
   lines = [
     ...lines,
-    `---${sourceVersion}/${patch.oldFileName}`,
-    `+++${targetVersion}/${patch.newFileName}`,
+    `---${remoteVersion}/${patch.oldFileName}`,
+    `+++${localVersion}/${patch.newFileName}`,
   ];
   lines = lines.concat(
     patch.hunks.flatMap((hunk) => [

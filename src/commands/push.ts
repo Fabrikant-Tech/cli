@@ -182,13 +182,13 @@ class Push extends BaseCommand {
     );
 
     ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);
-    const sourceSourceFiles = await getNormalizedSourceFilesByVersion({
+    const remoteSourceFiles = await getNormalizedSourceFilesByVersion({
       versionId: version._id,
       token,
     });
     ux.action.stop(constructive('✔'));
 
-    const targetSourceFiles = await Promise.all(
+    const localSourceFiles = await Promise.all(
       filePaths.map(async (filePath) => {
         const resolvedFilePath = path.resolve(directory, filePath);
         const content = await readFile(resolvedFilePath, 'utf-8');
@@ -198,8 +198,8 @@ class Push extends BaseCommand {
     const colorizedVersion = primary(getVersionDisplayName(version));
 
     const { table, added, removed, modified, unmodified, ignored } = buildPushStatusTable({
-      sourceSourceFiles,
-      targetSourceFiles,
+      remoteSourceFiles,
+      localSourceFiles,
       acceptIconSvgs,
       acceptTokensJson,
       deletePathsNotSpecified,
@@ -209,7 +209,7 @@ class Push extends BaseCommand {
 
     while (answer !== 'yes') {
       answer = await select({
-        message: `Push ${Object.keys(targetSourceFiles).length} files (${constructive(`${added} added`)}, ${destructive(`${removed} removed`)}, ${warning(`${modified} modified`)}, ${unmodified} unmodified, ${neutral(`${ignored} ignored`)})`,
+        message: `Push ${Object.keys(localSourceFiles).length} files (${constructive(`${added} added`)}, ${destructive(`${removed} removed`)}, ${warning(`${modified} modified`)}, ${unmodified} unmodified, ${neutral(`${ignored} ignored`)})`,
 
         choices: [
           { value: 'status', name: 'Show summary of file changes' },
@@ -240,7 +240,7 @@ class Push extends BaseCommand {
           deletePathsNotSpecified,
           versionId: version._id,
           token,
-          sourceFiles: targetSourceFiles,
+          sourceFiles: localSourceFiles,
         });
         ux.action.stop(constructive('✔'));
       }
