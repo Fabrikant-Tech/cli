@@ -35,34 +35,64 @@ const NON_EDITABLE_FILE_PATH_PATTERNS = [
   'turbo.json',
 ];
 
+const DEFAULT_EXCLUDED_DIRECTORIES = [
+  'node_modules',
+  'dist',
+  'build',
+  'out',
+  '.git',
+  '.turbo',
+  '.docusaurus',
+  '.stencil',
+];
+
 const TOKENS_JSON_PATTERN = 'tokens.json';
 
 const SVG_PATH_PATTERN = 'packages/core/assets/icon/*.svg';
 
 const buildPullStatusTable = async (
-  targetDirectory: string,
-  sourceFiles: Record<string, string>
+  localSourceFiles: Record<string, string>,
+  remoteSourceFiles: Record<string, string>
 ): Promise<string> => {
-  const existingPaths: Record<string, string> = (
-    await globby(['**/*', '!node_modules', '!dist', '!build'], {
-      cwd: targetDirectory,
-    })
-  ).reduce((accumulated, filePath) => ({ ...accumulated, [filePath]: filePath }), {});
-
   const headers: Header[] = [
     { value: 'Path', align: 'left', headerAlign: 'center' },
+    { value: 'Diff', align: 'center' },
     { value: 'Status', align: 'center' },
   ];
 
-  const sortedSourceFilePaths = sortBy(Object.keys(sourceFiles));
-  const table = Table(
-    headers,
-    sortedSourceFilePaths.map((sourceFilePath) => {
-      const colorizer = sourceFilePath in existingPaths ? warning : constructive;
-      const status = sourceFilePath in existingPaths ? 'M' : 'A';
-      return [colorizer(sourceFilePath), colorizer(status)];
-    })
-  ).render();
+  const sourcedLocalFilePaths = sortBy(Object.keys(localSourceFiles));
+  const sortedRemoteSourceFilePaths = sortBy(Object.keys(remoteSourceFiles));
+
+  const filePathDiffs = sortBy(
+    uniq([...sourcedLocalFilePaths, ...sortedRemoteSourceFilePaths]).map((filePath) => {
+      const source = localSourceFiles[filePath] ?? '';
+      const target = remoteSourceFiles[filePath] ?? '';
+      const diff = diffLines(source, target);
+
+      return { path: filePath, diff };
+    }),
+    (sourceFile) => sourceFile.path
+  );
+
+  const tableData = filePathDiffs.map(({ path: filePath, diff }) => {
+    let colorizer = (text: string) => text;
+    let status = 'Unmodified';
+    const formattedDiff = formatDiff(diff);
+
+    if (!isUnmodified(diff) && filePath in remoteSourceFiles && filePath in localSourceFiles) {
+      colorizer = warning;
+      status = 'Modified';
+    }
+
+    if (!isUnmodified(diff) && !(filePath in localSourceFiles)) {
+      colorizer = constructive;
+      status = 'Added';
+    }
+
+    return [colorizer(filePath), formattedDiff, colorizer(status)];
+  });
+
+  const table = Table(headers, tableData).render();
 
   return table;
 };
@@ -76,7 +106,7 @@ interface BuildPushStatusTableOptions {
   /**
    * Collection of source files proposed for updating
    */
-  localSourceFiles: Array<Pick<SourceFileDto, 'content' | 'path'>>;
+  localSourceFiles: Record<string, string>;
 
   /**
    * Whether the `tokens.json` file should be accepted & persisted as `Token` entities. Most of the time,
@@ -118,11 +148,11 @@ const buildPushStatusTable = (options: BuildPushStatusTableOptions): BuildPushSt
   ];
 
   const localSourceFiles = normalizeSourceFiles(options.localSourceFiles);
-  const sourcedSourceFilePaths = sortBy(Object.keys(remoteSourceFiles));
-  const sortedTargetFilePaths = sortBy(Object.keys(localSourceFiles));
+  const sortedRemoteSourceFilePaths = sortBy(Object.keys(remoteSourceFiles));
+  const sortedLocalFilePaths = sortBy(Object.keys(localSourceFiles));
 
   const filePathDiffs = sortBy(
-    uniq([...sortedTargetFilePaths, ...sourcedSourceFilePaths]).map((filePath) => {
+    uniq([...sortedLocalFilePaths, ...sortedRemoteSourceFilePaths]).map((filePath) => {
       const source = remoteSourceFiles[filePath] ?? '';
       const target = localSourceFiles[filePath] ?? '';
 
@@ -235,12 +265,30 @@ const formatDiff = (diff: Array<ChangeObject<string>>) => {
 };
 
 const normalizeSourceFiles = (
-  sourceFiles: Array<Pick<SourceFileDto, 'path' | 'content'>>
-): Record<string, string> =>
-  sourceFiles.reduce(
-    (accumulated, sourceFile) => ({ ...accumulated, [sourceFile.path]: sourceFile.content ?? '' }),
+  sourceFiles: Array<Pick<SourceFileDto, 'path' | 'content'>> | Record<string, string>
+): Record<string, string> => {
+  if (!Array.isArray(sourceFiles)) {
+    return sourceFiles;
+  }
+
+  return sourceFiles.reduce(
+    (accumulated, sourceFile) => ({
+      ...accumulated,
+      [sourceFile.path]: sourceFile.content ?? '',
+    }),
     {}
   );
+};
+
+const flattenSourceFiles = (
+  sourceFiles: Array<Pick<SourceFileDto, 'path' | 'content'>> | Record<string, string>
+): Array<Pick<SourceFileDto, 'path' | 'content'>> => {
+  if (Array.isArray(sourceFiles)) {
+    return sourceFiles;
+  }
+
+  return Object.entries(sourceFiles).map(([path, content]) => ({ path, content }));
+};
 
 const filterNormalizedSourceFiles = (
   sourceFiles: Record<string, string>,
@@ -255,9 +303,34 @@ const filterNormalizedSourceFiles = (
   return filteredSourceFiles;
 };
 
+interface ReadFilePathsOptions {
+  directory: string;
+  additionalExcludes?: string[];
+}
+
+const readFilePaths = async (options: ReadFilePathsOptions): Promise<string[]> => {
+  const { additionalExcludes = [], directory } = options;
+  const filePaths = await globby(
+    [
+      '**/*',
+      `!{${DEFAULT_EXCLUDED_DIRECTORIES.join(',')}}`,
+      `!**/*/{${DEFAULT_EXCLUDED_DIRECTORIES.join(',')}}`,
+      ...additionalExcludes,
+    ],
+    {
+      cwd: directory,
+      dot: true,
+    }
+  );
+
+  return filePaths;
+};
+
 export {
   buildPullStatusTable,
   buildPushStatusTable,
   filterNormalizedSourceFiles,
+  flattenSourceFiles,
   normalizeSourceFiles,
+  readFilePaths,
 };

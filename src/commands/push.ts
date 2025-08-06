@@ -20,24 +20,18 @@ import { select } from '@inquirer/prompts';
 import { readFile } from 'node:fs/promises';
 import { globby } from 'globby';
 import path from 'node:path';
-import { buildPushStatusTable } from '../utils/source-file-utils.js';
+import {
+  buildPushStatusTable,
+  flattenSourceFiles,
+  normalizeSourceFiles,
+  readFilePaths,
+} from '../utils/source-file-utils.js';
 import type { SelectChoice } from '../types/select-choice.js';
 import { pager } from '../utils/pager.js';
 
 const CREATE_VERSION = 'create-version' as const;
 const EMPTY = 'empty' as const;
 const SEED = 'seed' as const;
-
-const DEFAULT_EXCLUDED_DIRECTORIES = [
-  'node_modules',
-  'dist',
-  'build',
-  'out',
-  '.git',
-  '.turbo',
-  '.docusaurus',
-  '.stencil',
-];
 
 class Push extends BaseCommand {
   static args = {};
@@ -168,18 +162,7 @@ class Push extends BaseCommand {
     }
 
     const resolvedDirectory = path.resolve(directory);
-    const filePaths = await globby(
-      [
-        '**/*',
-        `!{${DEFAULT_EXCLUDED_DIRECTORIES.join(',')}}`,
-        `!**/*/{${DEFAULT_EXCLUDED_DIRECTORIES.join(',')}}`,
-        ...additionalExcludes,
-      ],
-      {
-        cwd: resolvedDirectory,
-        dot: true,
-      }
-    );
+    const filePaths = await readFilePaths({ directory: resolvedDirectory, additionalExcludes });
 
     ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);
     const remoteSourceFiles = await getNormalizedSourceFilesByVersion({
@@ -188,12 +171,14 @@ class Push extends BaseCommand {
     });
     ux.action.stop(constructive('✔'));
 
-    const localSourceFiles = await Promise.all(
-      filePaths.map(async (filePath) => {
-        const resolvedFilePath = path.resolve(directory, filePath);
-        const content = await readFile(resolvedFilePath, 'utf-8');
-        return { path: filePath, content };
-      })
+    const localSourceFiles = normalizeSourceFiles(
+      await Promise.all(
+        filePaths.map(async (filePath) => {
+          const resolvedFilePath = path.resolve(directory, filePath);
+          const content = await readFile(resolvedFilePath, 'utf-8');
+          return { path: filePath, content };
+        })
+      )
     );
     const colorizedVersion = primary(getVersionDisplayName(version));
 
@@ -240,7 +225,7 @@ class Push extends BaseCommand {
           deletePathsNotSpecified,
           versionId: version._id,
           token,
-          sourceFiles: localSourceFiles,
+          sourceFiles: flattenSourceFiles(localSourceFiles),
         });
         ux.action.stop(constructive('✔'));
       }
