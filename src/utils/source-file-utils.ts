@@ -106,7 +106,7 @@ interface BuildPushStatusTableOptions {
   /**
    * Collection of source files proposed for updating
    */
-  localSourceFiles: Array<Pick<SourceFileDto, 'content' | 'path'>>;
+  localSourceFiles: Record<string, string>;
 
   /**
    * Whether the `tokens.json` file should be accepted & persisted as `Token` entities. Most of the time,
@@ -265,12 +265,20 @@ const formatDiff = (diff: Array<ChangeObject<string>>) => {
 };
 
 const normalizeSourceFiles = (
-  sourceFiles: Array<Pick<SourceFileDto, 'path' | 'content'>>
-): Record<string, string> =>
-  sourceFiles.reduce(
-    (accumulated, sourceFile) => ({ ...accumulated, [sourceFile.path]: sourceFile.content ?? '' }),
+  sourceFiles: Array<Pick<SourceFileDto, 'path' | 'content'>> | Record<string, string>
+): Record<string, string> => {
+  if (!Array.isArray(sourceFiles)) {
+    return sourceFiles;
+  }
+
+  return sourceFiles.reduce(
+    (accumulated, sourceFile) => ({
+      ...accumulated,
+      [sourceFile.path]: sourceFile.content ?? '',
+    }),
     {}
   );
+};
 
 const filterNormalizedSourceFiles = (
   sourceFiles: Record<string, string>,

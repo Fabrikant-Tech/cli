@@ -20,7 +20,11 @@ import { select } from '@inquirer/prompts';
 import { readFile } from 'node:fs/promises';
 import { globby } from 'globby';
 import path from 'node:path';
-import { buildPushStatusTable, readFilePaths } from '../utils/source-file-utils.js';
+import {
+  buildPushStatusTable,
+  normalizeSourceFiles,
+  readFilePaths,
+} from '../utils/source-file-utils.js';
 import type { SelectChoice } from '../types/select-choice.js';
 import { pager } from '../utils/pager.js';
 
@@ -166,12 +170,14 @@ class Push extends BaseCommand {
     });
     ux.action.stop(constructive('✔'));
 
-    const localSourceFiles = await Promise.all(
-      filePaths.map(async (filePath) => {
-        const resolvedFilePath = path.resolve(directory, filePath);
-        const content = await readFile(resolvedFilePath, 'utf-8');
-        return { path: filePath, content };
-      })
+    const localSourceFiles = normalizeSourceFiles(
+      await Promise.all(
+        filePaths.map(async (filePath) => {
+          const resolvedFilePath = path.resolve(directory, filePath);
+          const content = await readFile(resolvedFilePath, 'utf-8');
+          return { path: filePath, content };
+        })
+      )
     );
     const colorizedVersion = primary(getVersionDisplayName(version));
 
