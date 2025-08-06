@@ -16,8 +16,12 @@ import { constructive, destructive, primary } from '../utils/colorize.js';
 import { BaseCommand } from '../utils/base-command.js';
 import path from 'node:path';
 import { cwd } from 'node:process';
-import { buildPullStatusTable } from '../utils/source-file-utils.js';
-import { mkdir, writeFile } from 'node:fs/promises';
+import {
+  buildPullStatusTable,
+  normalizeSourceFiles,
+  readFilePaths,
+} from '../utils/source-file-utils.js';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { VersionDto } from '../types/index.js';
 import { pager } from '../utils/pager.js';
 
@@ -92,8 +96,17 @@ class Pull extends BaseCommand {
       );
       this.exit();
     }
-
-    const table = await buildPullStatusTable(directory, sourceFiles);
+    const filePaths = await readFilePaths({ directory });
+    const localSourceFiles = normalizeSourceFiles(
+      await Promise.all(
+        filePaths.map(async (filePath) => {
+          const resolvedFilePath = path.resolve(directory, filePath);
+          const content = await readFile(resolvedFilePath, 'utf-8');
+          return { path: filePath, content };
+        })
+      )
+    );
+    const table = await buildPullStatusTable(localSourceFiles, sourceFiles);
 
     let answer: 'yes' | 'no' | 'status' | undefined = undefined;
 
