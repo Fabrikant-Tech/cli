@@ -22,6 +22,7 @@ import { globby } from 'globby';
 import path from 'node:path';
 import {
   buildPushStatusTable,
+  flattenSourceFiles,
   normalizeSourceFiles,
   readFilePaths,
 } from '../utils/source-file-utils.js';
@@ -224,7 +225,7 @@ class Push extends BaseCommand {
           deletePathsNotSpecified,
           versionId: version._id,
           token,
-          sourceFiles: localSourceFiles,
+          sourceFiles: flattenSourceFiles(localSourceFiles),
         });
         ux.action.stop(constructive('✔'));
       }

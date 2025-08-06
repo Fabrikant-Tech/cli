@@ -280,6 +280,16 @@ const normalizeSourceFiles = (
   );
 };
 
+const flattenSourceFiles = (
+  sourceFiles: Array<Pick<SourceFileDto, 'path' | 'content'>> | Record<string, string>
+): Array<Pick<SourceFileDto, 'path' | 'content'>> => {
+  if (Array.isArray(sourceFiles)) {
+    return sourceFiles;
+  }
+
+  return Object.entries(sourceFiles).map(([path, content]) => ({ path, content }));
+};
+
 const filterNormalizedSourceFiles = (
   sourceFiles: Record<string, string>,
   patterns: string[]
@@ -320,6 +330,7 @@ export {
   buildPullStatusTable,
   buildPushStatusTable,
   filterNormalizedSourceFiles,
+  flattenSourceFiles,
   normalizeSourceFiles,
   readFilePaths,
 };

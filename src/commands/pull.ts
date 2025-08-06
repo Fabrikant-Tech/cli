@@ -78,19 +78,22 @@ class Pull extends BaseCommand {
     }
 
     ux.action.start(`Retrieving files for ${getVersionDisplayName(version)}`);
-    const sourceFiles = await getNormalizedSourceFilesByVersion({ token, versionId: version._id });
+    const remoteSourceFiles = await getNormalizedSourceFilesByVersion({
+      token,
+      versionId: version._id,
+    });
     ux.action.stop(constructive('✔'));
-    if (!Object.keys(sourceFiles).some((path) => path.endsWith('.tsx'))) {
+    if (!Object.keys(remoteSourceFiles).some((path) => path.endsWith('.tsx'))) {
       this.error(
         `No source files were found for '${getVersionDisplayName(version)}'. If you think this is an error, contact us at help@designbase.com for assistance.`
       );
     }
 
-    const colorizedFileCount = primary(Object.keys(sourceFiles).length);
+    const colorizedFileCount = primary(Object.keys(remoteSourceFiles).length);
     const colorizedDirectory = primary(directory);
 
     if (force) {
-      await writeSourceFiles(directory, sourceFiles);
+      await writeSourceFiles(directory, remoteSourceFiles);
       this.log(
         constructive(`Finished writing ${colorizedFileCount} files to ${colorizedDirectory}.`)
       );
@@ -106,7 +109,7 @@ class Pull extends BaseCommand {
         })
       )
     );
-    const table = await buildPullStatusTable(localSourceFiles, sourceFiles);
+    const table = await buildPullStatusTable(localSourceFiles, remoteSourceFiles);
 
     let answer: 'yes' | 'no' | 'status' | undefined = undefined;
 
@@ -135,7 +138,7 @@ class Pull extends BaseCommand {
       }
 
       if (answer === 'yes') {
-        await writeSourceFiles(directory, sourceFiles);
+        await writeSourceFiles(directory, remoteSourceFiles);
         this.log(
           constructive(`Finished writing ${colorizedFileCount} files to ${colorizedDirectory}.`)
         );
